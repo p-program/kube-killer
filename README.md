@@ -2,7 +2,8 @@
 
 A tool helping you kill kubernetes‘s resource.
 
-You can delete kubernetes‘s resource （deploy，pod，statefulset and so on） based on time schedule ⏰, custom metrics or custom condition.
+You can delete kubernetes‘s resource （deploy，pod，statefulset and so on） based on time schedule ⏰,
+custom metrics or custom condition.
 
 `kube-killer` is a humane killer,he could freeze the deploy without killing it (scale to 0）.
 
@@ -40,7 +41,7 @@ kubernetes cronjob.
 ## TODO(NEVER DO)
 
 1. kill namespace
-1. 
+1. server mode
 1. 
 1. 
 1. 
