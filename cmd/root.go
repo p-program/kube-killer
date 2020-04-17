@@ -16,13 +16,7 @@ var (
 	rootCmd = &cobra.Command{
 		Use:   "kube-killer",
 		Short: "A tool helping you kill  kubernetes‘s resource",
-		Long: `
-kube-killer is a tool helping you kill kubernetes‘s resource.
-You can delete kubernetes‘s resource （deploy，pod，statefulset and so on） based on time schedule ⏰, 
-custom metrics or custom condition.
-kube-killer is a humane killer,he could freeze the deploy without killing it (scale to 0）.		
-It is very lightweight and easy to use, you don't need to install any CRD.
-You could even run once.`,
+		Long:  ``,
 	}
 )
 
