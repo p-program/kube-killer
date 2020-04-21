@@ -3,6 +3,7 @@
 A tool helping you kill kubernetes‘s resource.
 
 You can delete kubernetes‘s resource （deploy，pod，statefulset and so on） based on time schedule ⏰,
+
 custom metrics or custom condition.
 
 `kube-killer` is a humane killer,he could freeze the deploy without killing it (scale to 0）.
@@ -13,7 +14,7 @@ You could run as CLI mode,binary mode,or even web server mode.
 
 ![image](/doc/img/rm.gif)
 
-Please do not use it for bad.XD
+Please do not use it for bad(~~Although I bet you will~~).XD
 
 ## architecture
 
@@ -35,19 +36,21 @@ kubernetes cronjob.
 
 ## CLI mode
 
-KillByCondition
-
 ### kill resource
 
 ```bash
-kube-killer kill deploy my-wife
-kube-killer kill deploy 
+# delete "my-wife" deployment after 10 mins
+kube-killer kill deployment my-wife -a 10m
+kube-killer kill deploy my-wife -a 10m
 ```
 
 ### freeze deploy
 
 ```bash
-kube-killer freeze deploy my-wifi
+# scale “my-girlfriends” deployment’s spec.replicas to 0 now
+kube-killer freeze deployment my-girlfriends -a
+# scale “my-girlfriends” deployment’s spec.replicas to 0 after 1 hour
+kube-killer freeze deployment my-girlfriends -a 1h
 
 ```
 

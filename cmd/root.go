@@ -16,7 +16,7 @@ var (
 	rootCmd = &cobra.Command{
 		Use:   "kube-killer",
 		Short: "A tool helping you kill  kubernetes‘s resource",
-		Long:  ``,
+		Long:  `Please don't use it for bad.Hhhhhh`,
 	}
 )
 
@@ -37,7 +37,7 @@ func init() {
 	viper.SetDefault("license", "Mulan PSL v2")
 
 	rootCmd.AddCommand(versionCmd)
-	// rootCmd.AddCommand(initCmd)
+	rootCmd.AddCommand(killCmd)
 }
 
 func er(msg interface{}) {

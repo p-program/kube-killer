@@ -9,13 +9,16 @@ type TimeCondition struct {
 	newDate    time.Time
 }
 
-func NewTimeCondition(oldDate, newDate time.Time) *TimeCondition {
+func NewTimeCondition(newDate time.Time) *TimeCondition {
 	c := TimeCondition{
-		oldDate: oldDate,
+		oldDate: time.Now(),
 		newDate: newDate,
 	}
-
 	return &c
+}
+
+func (c *TimeCondition) After() {
+
 }
 
 func (c *TimeCondition) NeedToKill() bool {
