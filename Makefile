@@ -10,9 +10,14 @@ auto_commit:
 	git commit -am "$(now)"
 	git push
 
-buildAndRun:
+build:
 	GOARCH=$(ARCH) CGO_ENABLED=0 go build
-	./kube-killer
+
+buildAndRun: build run
+
+fix-dep:
+	go mod tidy
+	go mod vendor
 
 mirror: pull
 	docker build -t $(MIRROR_IMAGE) -f deploy/docker/Dockerfile .
@@ -26,6 +31,9 @@ release-mirror: mirror
 
 rebuild: pull	
 	docker build -t $(IMAGE) -f deploy/docker/Dockerfile .
+
+run:
+	./kube-killer
 
 test:
 	mkdir -p artifacts/report/coverage

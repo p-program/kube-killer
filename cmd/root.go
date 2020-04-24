@@ -35,9 +35,13 @@ func init() {
 	viper.BindPFlag("useViper", rootCmd.PersistentFlags().Lookup("viper"))
 	viper.SetDefault("author", "https://github.com/p-program")
 	viper.SetDefault("license", "Mulan PSL v2")
+	bindCommand()
 
-	rootCmd.AddCommand(versionCmd)
-	rootCmd.AddCommand(killCmd)
+}
+
+func bindCommand() {
+	rootCmd.AddCommand(newVersionCommand())
+	rootCmd.AddCommand(newKillCommand())
 }
 
 func er(msg interface{}) {

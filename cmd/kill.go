@@ -6,20 +6,27 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var killCmd = &cobra.Command{
-	Use:   "kill",
-	Short: "Kil kubernetes's resource",
-	Long:  ``,
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("")
-	},
+var resources []string
+
+func newKillCommand() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "kill",
+		Short: "Kill kubernetes's resource",
+		Long:  ``,
+		Run: func(cmd *cobra.Command, args []string) {
+			kill()
+		},
+	}
+	flags := cmd.Flags()
+	flags.StringArrayVarP(&resources, "kill", "k", nil, "kill resource")
+	// flags.string
+	return cmd
 }
 
 func kill() {
-	// IntVarP(&echoTimes, "times", "t", 1, "times to echo the input")
-	// var resources []string
-	resources := killCmd.Flags().StringArrayP("kill", "k", nil, "kill resource")
 	fmt.Printf("bilibili:")
 	fmt.Println(resources)
+	// resourceType := resources[0]
+	// resourceName := resources[1]
 
 }

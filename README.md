@@ -18,7 +18,7 @@ Please do not use it for bad(~~Although I bet you will~~).XD
 
 ## architecture
 
-kubernetes cronjob.
+kubernetes job.
 
 ## binary mode
 
