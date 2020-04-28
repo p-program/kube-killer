@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/p-program/kube-killer/cmd/killer"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -41,7 +42,7 @@ func init() {
 
 func bindCommand() {
 	rootCmd.AddCommand(newVersionCommand())
-	rootCmd.AddCommand(newKillCommand())
+	rootCmd.AddCommand(killer.NewKillCommand())
 }
 
 func er(msg interface{}) {

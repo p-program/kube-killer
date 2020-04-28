@@ -18,7 +18,9 @@ Please do not use it for bad(~~Although I bet you will~~).XD
 
 ## architecture
 
-kubernetes job.
+long run web server.
+
+## web server mode
 
 ## binary mode
 
@@ -40,8 +42,18 @@ kubernetes job.
 
 ```bash
 # delete "my-wife" deployment after 10 mins
-kube-killer kill deployment my-wife -a 10m
 kube-killer kill deploy my-wife -a 10m
+kube-killer kill deployment my-wife -a 10m
+
+
+# delete deployment by label
+kube-killer kill deploy -l age=two-hundred
+kube-killer kill deployment -l age=two-hundred
+
+# delete deployment by namespace and labels
+kube-killer kill deploy -l age=two-hundred -n default
+kube-killer kill deployment -l age=two-hundred -n default
+
 ```
 
 ### freeze deploy
@@ -60,7 +72,7 @@ You can find more examples in my [test cases]()
 ## TODO(NEVER DO)
 
 1. kill namespace
-1. web server mode
+1. 
 1. 
 1. 
 1. 

@@ -13,6 +13,7 @@ require (
 	github.com/spf13/viper v1.6.3
 	golang.org/x/sys v0.0.0-20200413165638-669c56c373c4 // indirect
 	gopkg.in/ini.v1 v1.55.0 // indirect
-	k8s.io/apimachinery v0.17.0
-	k8s.io/client-go v0.17.0
+	k8s.io/api v0.18.2
+	k8s.io/client-go v0.18.2
+	sigs.k8s.io/structured-merge-diff v0.0.0-20190525122527-15d366b2352e // indirect
 )
