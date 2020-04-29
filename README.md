@@ -12,10 +12,10 @@ I would like to call it [kube-killer](https://github.com/p-program/kube-killer).
 
 ## What is it?
 
-This is a tool helping you kill kubernetes‘s resource.
+🤣 This is a tool helping you kill unused kubernetes‘s resource. 
 
-You can delete kubernetes‘s resource （deploy，pod，statefulset and so on） based on time schedule ⏰, 
-custom metrics or custom condition.
+You can delete kubernetes‘s resource （deploy，pod，statefulset and so on） based on time schedule ⏰,
+ custom metrics or custom condition.
 
 `kube-killer` is a humane killer, he could freeze the deploy without killing it (scale to 0）.
 
@@ -25,11 +25,11 @@ You could run as web server, binary and CLI mode.
 
 ## Architecture
 
-A long run web server.
+A long run web server using endless loop.
 
 First of all,please make sure that:
 
-1. You have a super MYSQL user. `root` is the best!
+1. You have a super MYSQL user. `root` is the best! And you should make sure that the MYSQL database is reachable for the remote Kubernetes cluster.
 1. You are the administrator of the Kubernetes cluster. Admin of the “kube-system” is the best！
 
 ## Positive usage
@@ -51,6 +51,19 @@ Please remember one thing:
 `Easy to hurt, hard to forgive, just make FUN.`
 
 ## Web server mode
+
+```bash
+git clone https://github.com/p-program/kube-killer.git
+make build
+cp config-example.yaml config.yaml
+# edit config.yaml depending on the actual situation
+vi config.yaml
+......
+kube-killer init
+```
+
+It will create 
+
 
 ## Binary mode
 
@@ -112,7 +125,13 @@ Finally，you are free to destroy the whole production Kubernetes cluster  remot
 
 ## TODO(NEVER DO)
 
+1. [ ] kube-killer prepare
+    1. [ ] prepare MYSQL
+    1. [ ] prepare kube-killer server
+1. [ ] kube-killer kill
+1. [ ] kube-killer freeze
 1. kill namespace
+1. custom metrics condition support
 
 ## Confusion
 

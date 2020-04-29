@@ -1,0 +1,16 @@
+app:
+  # name of the “kube-killer” server deployment
+  name: kube-killer
+  # namespace of the “kube-killer” server
+  namespace: kube-system
+database:
+  mysql:
+    # Optional,the default value would be “kube_killer”.
+    # If the db does not exist.It will create the db automatically
+    db: kube_killer
+    # Optional,the default value would be “terminator”.
+    # If the table does not exist.It will create the table automatically
+    table: terminator
+    host: www.bullshitprogram.com:3306
+    user: root
+    pwd: root

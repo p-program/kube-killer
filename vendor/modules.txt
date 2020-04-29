@@ -47,6 +47,9 @@ github.com/mitchellh/mapstructure
 github.com/modern-go/concurrent
 # github.com/modern-go/reflect2 v1.0.1
 github.com/modern-go/reflect2
+# github.com/p-program/go-common-library v0.0.0-20200429092110-d308ab12a239
+## explicit
+github.com/p-program/go-common-library/text
 # github.com/pelletier/go-toml v1.7.0
 ## explicit
 github.com/pelletier/go-toml
@@ -106,6 +109,7 @@ gopkg.in/inf.v0
 ## explicit
 gopkg.in/ini.v1
 # gopkg.in/yaml.v2 v2.2.8
+## explicit
 gopkg.in/yaml.v2
 # k8s.io/api v0.18.2
 ## explicit
@@ -150,6 +154,7 @@ k8s.io/api/storage/v1
 k8s.io/api/storage/v1alpha1
 k8s.io/api/storage/v1beta1
 # k8s.io/apimachinery v0.18.2
+## explicit
 k8s.io/apimachinery/pkg/api/errors
 k8s.io/apimachinery/pkg/api/meta
 k8s.io/apimachinery/pkg/api/resource
@@ -255,8 +260,6 @@ k8s.io/client-go/util/workqueue
 k8s.io/klog
 # k8s.io/utils v0.0.0-20200324210504-a9aa75ae1b89
 k8s.io/utils/integer
-# sigs.k8s.io/structured-merge-diff v0.0.0-20190525122527-15d366b2352e
-## explicit
 # sigs.k8s.io/structured-merge-diff/v3 v3.0.0
 sigs.k8s.io/structured-merge-diff/v3/value
 # sigs.k8s.io/yaml v1.2.0
