@@ -1,7 +1,8 @@
 package core
 
 import (
-	"flag"
+	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 
@@ -16,17 +17,22 @@ func init() {
 }
 
 func initKubernetesConfig() {
-	var kubeconfig *string
-	if home := homeDir(); home != "" {
-		kubeconfig = flag.String("kubeconfig", filepath.Join(home, ".kube", "config"), "(optional) absolute path to the kubeconfig file")
+	var kubeconfig string
+	home := homeDir()
+	c := ""
+	if home != "" {
+		kubeconfig = filepath.Join(home, ".kube", "config")
+
 	} else {
-		kubeconfig = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
+		err := errors.New("kubeconfig not found")
+		panic(err)
 	}
-	flag.Parse()
+	fmt.Printf("kubeconfig: %s \n", kubeconfig)
 	// use the current context in kubeconfig
-	config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
+	// config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
+	config, err := clientcmd.BuildConfigFromFlags("", c)
 	if err != nil {
-		panic(err.Error())
+		fmt.Print(err)
 	}
 	GLOBAL_KUBERNETES_CONFIG = config
 }

@@ -8,6 +8,7 @@ ARCH		  ?=amd64
 auto_commit:   
 	git add .
 	git commit -am "$(now)"
+	git pull
 	git push
 
 build:
@@ -44,3 +45,10 @@ test:
 up:
 	docker-compose build --force-rm --no-cache
 	docker-compose up
+
+update-dep: update-mod fix-dep
+
+
+update-mod:
+	go get -u -v github.com/p-program/go-common-library
+	# go-mod-upgrade

@@ -1,3 +1,3 @@
-package model
+package text
 
 const LineBreak = "\r\n"

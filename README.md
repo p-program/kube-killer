@@ -12,7 +12,7 @@ I would like to call it [kube-killer](https://github.com/p-program/kube-killer).
 
 ## What is it?
 
-🤣 This is a tool helping you kill unused kubernetes‘s resource. 
+🤣 This is a tool helping you kill (unused) kubernetes‘s resource.
 
 You can delete kubernetes‘s resource （deploy，pod，statefulset and so on） based on time schedule ⏰,
  custom metrics or custom condition.
@@ -130,8 +130,11 @@ Finally，you are free to destroy the whole production Kubernetes cluster  remot
     1. [ ] prepare kube-killer server
 1. [ ] kube-killer kill
 1. [ ] kube-killer freeze
-1. kill namespace
-1. custom metrics condition support
+1. [ ] kill completed/failed pod automatically
+1. [ ] kill unused volume （PV,PVC)
+1. [ ] kill service without pod
+1. [ ] kill stucking namespace
+1. [ ] custom metrics condition support
 
 ## Confusion
 

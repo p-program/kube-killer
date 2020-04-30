@@ -4,7 +4,6 @@ import (
 	"io/ioutil"
 
 	"github.com/p-program/go-common-library/text"
-	// "github.com/p-program/go-common-library/text"
 	"gopkg.in/yaml.v2"
 )
 
@@ -41,8 +40,5 @@ func (config *Config) LoadYAML(path string) error {
 		return err
 	}
 	err = yaml.Unmarshal(contentWithoutComment, &config)
-	if err != nil {
-		return err
-	}
 	return err
 }
