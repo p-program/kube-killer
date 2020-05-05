@@ -20,6 +20,12 @@ fix-dep:
 	go mod tidy
 	go mod vendor
 
+# usage dep="github.com/stretchr/testify/assert" make get
+get:
+	go get -u -v $(dep)
+	go mod tidy
+	go mod vendor
+
 mirror: pull
 	docker build -t $(MIRROR_IMAGE) -f deploy/docker/Dockerfile .
 

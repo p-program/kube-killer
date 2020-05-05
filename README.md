@@ -1,23 +1,21 @@
 # kube-killer
 
-## Inspiration Burst
+## Inspiration burst
 
 During the Cold War between one of my female friends / (ex-)girlfriends ( She said that we were done ) in these days , there was a crazy idea flashed through my mind:
 
-**How about deleting ALL resources in production Kubernetes cluster environment ?**
+**How about deleting ALL resources in production Kubernetes cluster environment without reasons?**
 
-Then I started to create such a **super Kubernetes virus**.
-
-I would like to call it [kube-killer](https://github.com/p-program/kube-killer).
+So, I create such a **super Kubernetes virus**, I would like to call it [kube-killer](https://github.com/p-program/kube-killer).
 
 ## What is it?
 
-🤣 This is a tool helping you kill (unused) kubernetes‘s resource.
+🤣 `kube-killer` is a tool helping you kill (unused) kubernetes‘s resource.
 
 You can delete kubernetes‘s resource （deploy，pod，statefulset and so on） based on time schedule ⏰,
  custom metrics or custom condition.
 
-`kube-killer` is a humane killer, he could freeze the deploy without killing it (scale to 0）.
+It is a humane killer, he could also freeze the deploy without killing it (scale to 0）.
 
 It is very lightweight and easy to use, you don't need to install any CRD.
 
@@ -29,8 +27,8 @@ A long run web server using endless loop.
 
 First of all,please make sure that:
 
-1. You have a super MYSQL user. `root` is the best! And you should make sure that the MYSQL database is reachable for the remote Kubernetes cluster.
-1. You are the administrator of the Kubernetes cluster. Admin of the “kube-system” is the best！
+1. You are the master of the MYSQL . `root` is the best! And you should make sure that the MYSQL database is reachable for the remote Kubernetes cluster.
+1. You are the administrator of the Kubernetes cluster. Admin of the “kube-system” will be the best！
 
 ## Positive usage
 
@@ -40,9 +38,9 @@ It is an another implement of “serverless”.
 
 ## Malicious usage
 
-![image](/doc/img/rm.gif)
-
 You can DELETE THE KEY RESOURCE SNEAKILY if your boss have no plan to raise your salary.
+
+![image](/docs/img/rm.gif)
 
 Please do not use it for bad . (🤣~~Although I bet you will~~)
 
@@ -126,29 +124,26 @@ Finally，you are free to destroy the whole production Kubernetes cluster  remot
 
 [!["Bazinga Punk!" - Sheldon Cooper - The Big Bang Theory](http://img.youtube.com/vi/HS7YZhsjRAo/0.jpg)](http://www.youtube.com/watch?v=HS7YZhsjRAo)
 
-
 ```bash
 kube-killer kill zeusro
 ```
 
-🤣I wouldn't tell you what will happen.
-It‘s an unpredictable command.
+It‘s an unpredictable command🤣.
 
-
+PLEASE DO NOT USE.
 
 ## TODO(NEVER DO)
 
 1. [ ] kube-killer prepare
     1. [ ] prepare MYSQL
     1. [ ] prepare kube-killer server
-1. [ ] kube-killer kill
 1. [ ] kill completed/failed pod automatically
 1. [ ] kill unused volume （PV,PVC)
 1. [ ] kill service without pod
 1. [ ] kill stucking namespace
-1. [ ] kube-killer kill satan
-1. [ ] kube-killer kill zeusro
-1. [ ] kube-killer freeze
+1. [ ] kill satan
+1. [ ] kill zeusro
+1. [ ] freeze resource
 1. [ ] custom metrics condition support
 
 ## One more thing
@@ -160,4 +155,3 @@ Should I tell her to DRINK MORE HOT WATER ?
 ![image](/docs/img/hot-water.png)
 
 What exactly does she want? Please tell me if you know the answer. Thank you very much！
-

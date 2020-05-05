@@ -15,3 +15,6 @@
 # vendor/
 /kube-killer
 *.log
+
+# project
+config.yaml
