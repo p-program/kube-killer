@@ -44,10 +44,9 @@ It is an another implement of “serverless”.
 
 You can DELETE THE KEY RESOURCE SNEAKILY if your boss have no plan to raise your salary.
 
-Please do not use it for bad (~~Although I bet you will~~).XD
+Please do not use it for bad . (🤣~~Although I bet you will~~)
 
-Please remember one thing:
-
+Remember:
 `Easy to hurt, hard to forgive, just make FUN.`
 
 ## Web server mode
@@ -123,25 +122,41 @@ Then the [kube-killer server](#Web-server-mode) would become some kind of backdo
 
 Finally，you are free to destroy the whole production Kubernetes cluster  remotely （Hhhhhhhhhhhhhhhhhhhhh).
 
+## Bazinga Punk
+
+![video](https://www.youtube.com/watch?v=HS7YZhsjRAo)
+
+```bash
+kube-killer kill zeusro
+```
+
+🤣I wouldn't tell you what will happen.
+It‘s an unpredictable command.
+
+
+
 ## TODO(NEVER DO)
 
 1. [ ] kube-killer prepare
     1. [ ] prepare MYSQL
     1. [ ] prepare kube-killer server
 1. [ ] kube-killer kill
-1. [ ] kube-killer freeze
 1. [ ] kill completed/failed pod automatically
 1. [ ] kill unused volume （PV,PVC)
 1. [ ] kill service without pod
 1. [ ] kill stucking namespace
+1. [ ] kube-killer kill satan
+1. [ ] kube-killer kill zeusro
+1. [ ] kube-killer freeze
 1. [ ] custom metrics condition support
 
-## Confusion
+## One more thing
 
-Coding is easy, but it is really hard to figure out why she is so ANGRY.
+Coding is easy, but it is really hard to figure out why she is so angry.
 
-Maybe I should tell her : DRINK MORE HOT WATER ?
+Should I tell her to DRINK MORE HOT WATER ?
 
 ![image](/doc/img/hot-water.png)
 
 What exactly does she want? Please tell me if you know the answer. Thank you very much！
+
