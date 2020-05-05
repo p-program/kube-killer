@@ -124,7 +124,8 @@ Finally，you are free to destroy the whole production Kubernetes cluster  remot
 
 ## Bazinga Punk
 
-![video](https://www.youtube.com/watch?v=HS7YZhsjRAo)
+[!["Bazinga Punk!" - Sheldon Cooper - The Big Bang Theory](http://img.youtube.com/vi/HS7YZhsjRAo/0.jpg)](http://www.youtube.com/watch?v=HS7YZhsjRAo)
+
 
 ```bash
 kube-killer kill zeusro
@@ -156,7 +157,7 @@ Coding is easy, but it is really hard to figure out why she is so angry.
 
 Should I tell her to DRINK MORE HOT WATER ?
 
-![image](/doc/img/hot-water.png)
+![image](/docs/img/hot-water.png)
 
 What exactly does she want? Please tell me if you know the answer. Thank you very much！
 
