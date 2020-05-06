@@ -128,9 +128,9 @@ Finally，you are free to destroy the whole production Kubernetes cluster  remot
 kube-killer kill zeusro
 ```
 
-It‘s an unpredictable command🤣.
+**!!!WARNING!!!**:PLEASE DO NOT USE.
 
-PLEASE DO NOT USE.
+It‘s an unpredictable command🤣.
 
 ## TODO(NEVER DO)
 

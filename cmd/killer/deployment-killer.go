@@ -28,14 +28,27 @@ var newDeploymentKillerCommand = &cobra.Command{
 	Short: "Kill kubernetes's deployment",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		kill()
+		killer := NewDeploymentKiller()
+		killer.Kill()
 	}}
 
-func kill() {
+type DeploymentKiller struct {
+}
+
+func NewDeploymentKiller() *DeploymentKiller {
+	k := DeploymentKiller{}
+	return &k
+}
+
+func (k *DeploymentKiller) Kill() {
 
 }
 
-func killResource(resources []string) {
+func (k *DeploymentKiller) KillMyself() {
+
+}
+
+func (k *DeploymentKiller) killResource(resources []string) {
 	fmt.Printf("bilibili:")
 	fmt.Println(resources)
 	// resourceType := resources[0]
@@ -53,6 +66,6 @@ func killResource(resources []string) {
 	// fmt.Printf("There are %d pods in the cluster\n", len(pods.Items))
 }
 
-func killByCondition() {
+func (k *DeploymentKiller) killByCondition() {
 
 }
