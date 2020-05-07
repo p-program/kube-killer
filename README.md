@@ -47,7 +47,7 @@ Please do not use it for bad . (🤣~~Although I bet you will~~)
 Remember:
 `Easy to hurt, hard to forgive, just make FUN.`
 
-## Web server mode
+## Server mode
 
 ```bash
 git clone https://github.com/p-program/kube-killer.git
@@ -61,28 +61,27 @@ kube-killer init
 
 It will create 
 
-
-## Binary mode
+### Binary usage
 
 Once the server is ready，you can use the binary mode.
 
-### kill resource
+#### kill resource
 
 ```go
 
 ```
 
-### freeze deploy
+#### freeze deploy
 
 ```go
 
 ```
 
-## CLI mode
+### CLI usage
 
 Once the [kube-killer server](#Web-server-mode) is ready，you can use the CLI mode .
 
-### kill resource
+#### kill resource
 
 ```bash
 # delete "my-wife" deployment after 10 mins
@@ -100,7 +99,7 @@ kube-killer kill deployment -l age=two-hundred -n default
 
 ```
 
-### freeze deploy
+#### freeze deploy
 
 ```bash
 # scale “my-girlfriends” deployment’s spec.replicas to 0 now
@@ -112,13 +111,20 @@ kube-killer freeze deployment my-girlfriends -a 1h
 
 You can find more examples in my [test cases]()
 
-## curl mode
+### CURL usage
 
 You can expose the [kube-killer server](#Web-server-mode) by using nodePort service .
 
 Then the [kube-killer server](#Web-server-mode) would become some kind of backdoor.
 
 Finally，you are free to destroy the whole production Kubernetes cluster  remotely （Hhhhhhhhhhhhhhhhhhhhh).
+
+
+## Serverless mode
+
+### Binary usage
+
+### CLI usage
 
 ## Bazinga Punk
 

@@ -1,8 +1,10 @@
-app:
+logLevel: "debug"
+sever:
   # name of the “kube-killer” server deployment
   name: kube-killer
   # namespace of the “kube-killer” server
   namespace: kube-system
+  logLevel: "debug"
 database:
   mysql:
     # Optional,the default value would be “kube_killer”.
