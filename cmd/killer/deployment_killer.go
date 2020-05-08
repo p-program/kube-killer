@@ -44,11 +44,7 @@ func (k *DeploymentKiller) Kill() {
 
 }
 
-func (k *DeploymentKiller) KillMyself() {
-
-}
-
-func (k *DeploymentKiller) killResource(resources []string) {
+func (k *DeploymentKiller) kill2(resources []string) {
 	fmt.Printf("bilibili:")
 	fmt.Println(resources)
 	// resourceType := resources[0]
@@ -60,12 +56,9 @@ func (k *DeploymentKiller) killResource(resources []string) {
 	}
 	namespace := ""
 	err = clientset.CoreV1().Pods(namespace).Delete(context.TODO(), resourceName, metav1.DeleteOptions{})
+	// clientset.AppsV1().Deployments()
 	if err != nil {
 		panic(err.Error())
 	}
 	// fmt.Printf("There are %d pods in the cluster\n", len(pods.Items))
-}
-
-func (k *DeploymentKiller) killByCondition() {
-
 }

@@ -42,9 +42,9 @@ You can DELETE THE KEY RESOURCE SNEAKILY if your boss have no plan to raise your
 
 ![image](/docs/img/rm.gif)
 
-Please do not use it for bad . (🤣~~Although I bet you will~~)
+Please do not use it for bad . (🤣~~I bet you will~~)
 
-Remember:
+Just remember:
 `Easy to hurt, hard to forgive, just make FUN.`
 
 ## Server mode
@@ -143,14 +143,19 @@ It‘s an unpredictable command🤣.
 1. [ ] kube-killer prepare
     1. [ ] prepare MYSQL
     1. [ ] prepare kube-killer server
-1. [ ] kill completed/failed pod automatically
-1. [ ] kill unused volume （PV,PVC)
+1. [x] kill completed/failed pod automatically
+1. [x] kill unused PV
+1. [ ] kill unused PVC
 1. [ ] kill service without pod
 1. [ ] kill stucking namespace
 1. [ ] kill satan
 1. [ ] kill zeusro
 1. [ ] freeze resource
 1. [ ] custom metrics condition support
+
+### severless
+
+1. [ ] kill resource with metrics data.
 
 ## One more thing
 

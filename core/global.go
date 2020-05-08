@@ -19,18 +19,16 @@ func init() {
 func initKubernetesConfig() {
 	var kubeconfig string
 	home := homeDir()
-	c := ""
+	// c := ""
 	if home != "" {
 		kubeconfig = filepath.Join(home, ".kube", "config")
-
 	} else {
 		err := errors.New("kubeconfig not found")
 		panic(err)
 	}
 	fmt.Printf("kubeconfig: %s \n", kubeconfig)
 	// use the current context in kubeconfig
-	// config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
-	config, err := clientcmd.BuildConfigFromFlags("", c)
+	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
 	if err != nil {
 		fmt.Print(err)
 	}

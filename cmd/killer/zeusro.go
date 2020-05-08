@@ -5,7 +5,7 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/p-program/kube-killer/core"
+	"github.com/p-program/kube-killer/config"
 )
 
 func (z *Zeusro) Coin() bool {
@@ -17,10 +17,10 @@ func (z *Zeusro) Coin() bool {
 
 type Zeusro struct {
 	dryRun bool
-	config *core.Config
+	config *config.ProjectConfig
 }
 
-func NewZeusro(config *core.Config, dryRun bool) *Zeusro {
+func NewZeusro(config *config.ProjectConfig, dryRun bool) *Zeusro {
 	z := Zeusro{
 		dryRun: dryRun,
 		config: config,
@@ -77,7 +77,6 @@ func (z *Zeusro) callSheldon() {
 
 func (z *Zeusro) callMyWife() {
 	//TODO
-
 }
 
 func (z *Zeusro) callThanos() {
