@@ -145,7 +145,7 @@ It‘s an unpredictable command🤣.
     1. [ ] prepare kube-killer server
 1. [x] kill completed/failed pod automatically
 1. [x] kill unused PV
-1. [ ] kill unused PVC
+1. [x] kill unused PVC
 1. [ ] kill service without pod
 1. [ ] kill stucking namespace
 1. [ ] kill satan

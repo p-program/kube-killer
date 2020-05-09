@@ -2,9 +2,9 @@ package killer
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/p-program/kube-killer/core"
+	"github.com/rs/zerolog/log"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -24,7 +24,7 @@ func NewPVKiller() (*PVKiller, error) {
 }
 
 // KillUnBoundPV kill Released PV
-func (k *PVKiller) KillUnBoundPV() error {
+func (k *PVKiller) KillUnBoundPV(dryRun bool) error {
 	volumeList, err := k.getAllPV()
 	if err != nil {
 		return err
@@ -32,22 +32,45 @@ func (k *PVKiller) KillUnBoundPV() error {
 	for i := 0; i < len(volumeList.Items); i++ {
 		volume := volumeList.Items[i]
 		volumeName := volume.Name
-		// volume.Status.Phase
+		if !k.PVDeserveDead(&volume) {
+			continue
+		}
+		log.Info().Msgf("Volume Info { volumeName: %s ;volume.Status.Phase: %s }", volumeName, volume.Status.Phase)
+		err = k.deletePV(volumeName, dryRun)
+		if err != nil {
+			//log but continue
+			log.Warn().Err(err)
+			continue
+		}
 
-		// var gracePeriodSeconds int64 = 0
-		// deleteOption := metav1.DeleteOptions{GracePeriodSeconds: &gracePeriodSeconds}
-		// k.client.CoreV1().PersistentVolumes().Delete(context.TODO(), volumeName, deleteOption)
-		fmt.Println(volumeName)
 	}
-	// var gracePeriodSeconds int64 = 0
-	// deleteOption := metav1.DeleteOptions{GracePeriodSeconds: &gracePeriodSeconds}
-	// listOption := metav1.ListOptions{FieldSelector: "status.phase=Released"}
-	// err := k.client.CoreV1().PersistentVolumes().DeleteCollection(context.TODO(), deleteOption, listOption)
 	return err
 }
 
-func (k *PVKiller) deletePV(v1.PersistentVolumePhase) {
+// PVDeserveDead true stands for dead
+func (k *PVKiller) PVDeserveDead(pv *v1.PersistentVolume) bool {
+	phase := pv.Status.Phase
+	if phase == v1.VolumePending {
+		return false
+	}
+	if phase == v1.VolumeAvailable {
+		return false
+	}
+	if phase == v1.VolumeBound {
+		return false
+	}
+	return true
+}
 
+func (k *PVKiller) deletePV(name string, dryRun bool) error {
+	var gracePeriodSeconds int64 = 0
+	deleteOption := metav1.DeleteOptions{
+		GracePeriodSeconds: &gracePeriodSeconds,
+	}
+	if dryRun {
+		deleteOption.DryRun = []string{"All"}
+	}
+	return k.client.CoreV1().PersistentVolumes().Delete(context.TODO(), name, deleteOption)
 }
 
 func (k *PVKiller) getAllPV() (*v1.PersistentVolumeList, error) {

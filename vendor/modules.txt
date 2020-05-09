@@ -61,6 +61,8 @@ github.com/p-program/go-common-library/text
 # github.com/pelletier/go-toml v1.7.0
 ## explicit
 github.com/pelletier/go-toml
+# github.com/pmezard/go-difflib v1.0.0
+github.com/pmezard/go-difflib/difflib
 # github.com/rs/zerolog v1.18.0
 ## explicit
 github.com/rs/zerolog
@@ -86,6 +88,7 @@ github.com/spf13/pflag
 github.com/spf13/viper
 # github.com/stretchr/testify v1.5.1
 ## explicit
+github.com/stretchr/testify/assert
 # github.com/subosito/gotenv v1.2.0
 github.com/subosito/gotenv
 # golang.org/x/crypto v0.0.0-20200429183012-4b2356b1ed79

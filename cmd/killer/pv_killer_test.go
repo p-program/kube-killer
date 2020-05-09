@@ -1,16 +1,14 @@
 package killer
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+)
 
 func TestKillUnBoundPV(t *testing.T) {
 	p, err := NewPVKiller()
-	if err != nil {
-		t.Error(err)
-		t.FailNow()
-	}
-	err = p.KillUnBoundPV()
-	if err != nil {
-		t.Error(err)
-		t.FailNow()
-	}
+	assert.Nil(t, err)
+	err = p.KillUnBoundPV(false)
+	assert.Nil(t, err)
 }
