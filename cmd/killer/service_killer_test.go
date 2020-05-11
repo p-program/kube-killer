@@ -6,8 +6,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestKillUnBoundPVC(t *testing.T) {
-	k, err := NewPVCKiller("")
+func TestServiceKiller(t *testing.T) {
+	k, err := NewServiceKiller("")
 	assert.Nil(t, err)
 	k.DryRun()
 	err = k.Kill()

@@ -11,31 +11,48 @@ import (
 )
 
 type PVCKiller struct {
-	dryRun       bool
-	namespace    string
+	client       *kubernetes.Clientset
 	deleteOption metav1.DeleteOptions
+	dryRun       bool
+	mafia        bool
+	namespace    string
 }
 
 // NewPVCKiller NewPVCKiller
-// dryRun true: fake killer; flase true killer
 // namespace can be ""， empty stands for current namespace
-func NewPVCKiller(dryRun bool, namespace string) *PVCKiller {
+func NewPVCKiller(namespace string) (*PVCKiller, error) {
+	clientset, err := kubernetes.NewForConfig(core.GLOBAL_KUBERNETES_CONFIG)
+	if err != nil {
+		return nil, err
+	}
 	k := PVCKiller{
-		dryRun:    dryRun,
 		namespace: namespace,
+		client:    clientset,
 	}
-	deleteOption := metav1.DeleteOptions{}
 	var gracePeriodSeconds int64 = 1
-	deleteOption.GracePeriodSeconds = &gracePeriodSeconds
-	if k.dryRun {
-		deleteOption.DryRun = []string{"All"}
+	k.deleteOption = metav1.DeleteOptions{
+		GracePeriodSeconds: &gracePeriodSeconds,
 	}
-	k.deleteOption = deleteOption
-	return &k
+	return &k, nil
 }
 
-// PVCDeserveDead Pending/Lost PVC deserve to die
-func (k *PVCKiller) PVCDeserveDead(pvc *v1.PersistentVolumeClaim) bool {
+func (k *PVCKiller) BlackHand() *PVCKiller {
+	k.mafia = true
+	return k
+}
+
+func (k *PVCKiller) DryRun() *PVCKiller {
+	k.dryRun = true
+	k.deleteOption.DryRun = []string{"All"}
+	return k
+}
+
+// DeserveDead Pending/Lost PVC deserve to die
+func (k *PVCKiller) DeserveDead(resource interface{}) bool {
+	if k.mafia {
+		return true
+	}
+	pvc := resource.(v1.PersistentVolumeClaim)
 	phase := pvc.Status.Phase
 	if phase == v1.ClaimBound {
 		return false
@@ -43,22 +60,18 @@ func (k *PVCKiller) PVCDeserveDead(pvc *v1.PersistentVolumeClaim) bool {
 	return true
 }
 
-// KillUnBoundPVC KillUnBoundPVC
-func (k *PVCKiller) KillUnBoundPVC() error {
-	clientset, err := kubernetes.NewForConfig(core.GLOBAL_KUBERNETES_CONFIG)
-	if err != nil {
-		return err
-	}
-	list, err := clientset.CoreV1().PersistentVolumeClaims(k.namespace).List(context.TODO(), metav1.ListOptions{})
+// Kill Kill
+func (k *PVCKiller) Kill() error {
+	list, err := k.client.CoreV1().PersistentVolumeClaims(k.namespace).List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		return err
 	}
 	for _, pvc := range list.Items {
-		if !k.PVCDeserveDead(&pvc) {
+		if !k.DeserveDead(pvc) {
 			continue
 		}
-		log.Info().Msgf("delete pvc: %s", pvc.Name)
-		clientset.CoreV1().PersistentVolumeClaims(k.namespace).Delete(context.TODO(), pvc.Name, k.deleteOption)
+		log.Info().Msgf("delete pvc %s in namespace %s ", pvc.Name, pvc.Namespace)
+		k.client.CoreV1().PersistentVolumeClaims(k.namespace).Delete(context.TODO(), pvc.Name, k.deleteOption)
 	}
 	return nil
 }

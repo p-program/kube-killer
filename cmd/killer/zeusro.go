@@ -8,6 +8,7 @@ import (
 	"github.com/p-program/kube-killer/config"
 )
 
+// Coin live or dead ?
 func (z *Zeusro) Coin() bool {
 	//prevent same result
 	rand.Seed(time.Now().UnixNano())
@@ -15,6 +16,7 @@ func (z *Zeusro) Coin() bool {
 	return v == 1
 }
 
+// Zeusro Kuiper
 type Zeusro struct {
 	dryRun bool
 	config *config.ProjectConfig
@@ -40,7 +42,7 @@ func (z *Zeusro) Run() {
 	coin := z.Coin()
 	dead := !coin
 	if dead {
-		fmt.Println("Zeusro: Now You Know My Name")
+		fmt.Println("Zeusro: Goodbye.")
 		z.callMyWife()
 	}
 	live := coin

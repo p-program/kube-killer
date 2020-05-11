@@ -6,9 +6,9 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestKillUnBoundPV(t *testing.T) {
+func TestPVKillerKill(t *testing.T) {
 	p, err := NewPVKiller()
 	assert.Nil(t, err)
-	err = p.KillUnBoundPV(false)
+	err = p.Kill()
 	assert.Nil(t, err)
 }

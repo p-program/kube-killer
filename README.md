@@ -34,7 +34,7 @@ First of all,please make sure that:
 
 You can create a scalable test environment by deleting those unused Kubernetes resources.
 
-It is an another implement of “serverless”.
+`kube-killer` is another implement of `serverless`.
 
 ## Malicious usage
 
@@ -52,18 +52,46 @@ Just remember:
 ```bash
 git clone https://github.com/p-program/kube-killer.git
 make build
-cp config-example.yaml config.yaml
+cp config/config-example.yaml config/config.yaml
+
 # edit config.yaml depending on the actual situation
-vi config.yaml
+vi config/config.yaml
 ......
-kube-killer init
+
+./kube-killer prepare
+# It will create
+# 1. MYSQL database
+# 2. `kube-killer` web server
 ```
 
-It will create 
+After that，you have two options: To be a demon or to be a Illidan(demon hunter).
 
-### Binary usage
+### demon mode
 
-Once the server is ready，you can use the binary mode.
+```bash
+./kube-killer run -mode demon
+```
+
+When `kube-killer` run on the demon mode,It will KILL ALL PODS AT EVERY PERIOD.
+
+Pods whoever create will be killed.
+
+It is unstoppable.
+
+### Illidan mode
+
+```bash
+./kube-killer run -mode Illidan
+```
+
+When `kube-killer` run on the demon mode,it will hunt all unhealthy kubernetes resources at every period.
+
+Such as
+1. 
+1. 
+1. 
+1. 
+1. 
 
 #### kill resource
 
@@ -131,7 +159,7 @@ Finally，you are free to destroy the whole production Kubernetes cluster  remot
 [!["Bazinga Punk!" - Sheldon Cooper - The Big Bang Theory](http://img.youtube.com/vi/HS7YZhsjRAo/0.jpg)](http://www.youtube.com/watch?v=HS7YZhsjRAo)
 
 ```bash
-kube-killer kill zeusro
+kube-killer kill me
 ```
 
 **!!!WARNING!!!**:PLEASE DO NOT USE.
@@ -146,11 +174,14 @@ It‘s an unpredictable command🤣.
 1. [x] kill completed/failed pod automatically
 1. [x] kill unused PV
 1. [x] kill unused PVC
-1. [ ] kill service without pod
+1. [x] kill service without pod
 1. [ ] kill stucking namespace
+1. [ ] kill unused configmap
+1. [ ] kill unused secret
 1. [ ] kill satan
-1. [ ] kill zeusro
+1. [ ] kill me
 1. [ ] freeze resource
+1. [ ] kill StatefulSet
 1. [ ] custom metrics condition support
 
 ### severless
