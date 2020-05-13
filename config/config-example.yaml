@@ -1,18 +1,18 @@
-logLevel: "debug"
+logLevel: debug
 sever:
   # name of the “kube-killer” server deployment
   name: kube-killer
   # namespace of the “kube-killer” server
   namespace: kube-system
-  logLevel: "debug"
+  logLevel: debug
 database:
   mysql:
-    # Optional,the default value would be “kube_killer”.
     # If the db does not exist.It will create the db automatically
+    # +optional,the default value would be “kube_killer”.
     db: kube_killer
-    # Optional,the default value would be “terminator”.
     # If the table does not exist.It will create the table automatically
-    table: terminator
+    tables: 
+      - terminator
     host: www.bullshitprogram.com:3306
     user: root
     pwd: root

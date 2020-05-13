@@ -12,9 +12,9 @@ type DatabaseConfig struct {
 }
 
 type MysqlConfig struct {
-	Db    string
-	Table string
-	Host  string
-	User  string
-	Pwd   string
+	Db     string
+	Tables []string
+	Host   string
+	User   string
+	Pwd    string
 }

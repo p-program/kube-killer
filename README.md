@@ -171,16 +171,17 @@ It‘s an unpredictable command🤣.
 1. [ ] kube-killer prepare
     1. [ ] prepare MYSQL
     1. [ ] prepare kube-killer server
+1. [ ] freeze resource
 1. [x] kill completed/failed pod automatically
 1. [x] kill unused PV
 1. [x] kill unused PVC
 1. [x] kill service without pod
+1. [ ] kill satan
+1. [ ] kill me
 1. [ ] kill stucking namespace
 1. [ ] kill unused configmap
 1. [ ] kill unused secret
-1. [ ] kill satan
-1. [ ] kill me
-1. [ ] freeze resource
+
 1. [ ] kill StatefulSet
 1. [ ] custom metrics condition support
 

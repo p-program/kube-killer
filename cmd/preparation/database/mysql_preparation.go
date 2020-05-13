@@ -9,7 +9,7 @@ import (
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
-	"github.com/p-program/kube-killer/core"
+	"github.com/p-program/kube-killer/config"
 )
 
 const (
@@ -23,10 +23,10 @@ const (
 )
 
 type MysqlPreparation struct {
-	config *core.MysqlConfig
+	config *config.MysqlConfig
 }
 
-func NewMysqlPreparation(config *core.MysqlConfig) *MysqlPreparation {
+func NewMysqlPreparation(config *config.MysqlConfig) *MysqlPreparation {
 	p := MysqlPreparation{
 		config: config,
 	}
@@ -34,7 +34,7 @@ func NewMysqlPreparation(config *core.MysqlConfig) *MysqlPreparation {
 }
 
 func (p *MysqlPreparation) Prepare() {
-	db := p.GetDBWithoutClose()
+	db := p.getDBWithoutClose()
 	defer db.Close()
 	config := p.config
 	err := p.CreateDb(db, config.Db)
@@ -42,37 +42,39 @@ func (p *MysqlPreparation) Prepare() {
 		log.Err(err)
 		return
 	}
-	err = p.CreateTable(db, config.Db, config.Table)
+	err = p.CreateTable(db)
 	if err != nil {
 		log.Err(err)
 		return
 	}
 }
 
-func (p *MysqlPreparation) CleanUp(dbName string) {
-	if dbName == "" {
-		dbName = DEFAULT_DB_NAME
-	}
-	sql := fmt.Sprintf("truncate table `%s`" + dbName)
-	db := p.GetDB()
+// CleanUp delete database
+func (p *MysqlPreparation) CleanUp() {
+	dbName := p.config.Db
+	sql := fmt.Sprintf("truncate table `%s`", dbName)
+	log.Warn().Msgf("sql: %s", sql)
+	db := p.getDBWithoutClose()
+	defer db.Close()
 	db.Exec(sql)
 }
 
 // CreateTable params are optional
-func (p *MysqlPreparation) CreateTable(db *gorm.DB, dbName string, tableName string) error {
+func (p *MysqlPreparation) CreateTable(db *gorm.DB) error {
+	// load template
 	content, err := ioutil.ReadFile(MYSQL_TABLE_TERMINATOR_PATH)
 	if err != nil {
 		return err
 	}
-	if dbName == "" {
-		dbName = DEFAULT_DB_NAME
-	}
-	if tableName == "" {
-		tableName = DEFAULT_TABLE_NAME
-	}
-	// db := p.GetDB()
+	dbName := p.config.Db
 	sql := strings.ReplaceAll(string(content), "@db", dbName)
+	log.Info().Msgf("sql: %s", sql)
 	db.Exec(sql)
+	tableNames := p.config.Tables
+	for _, table := range tableNames {
+
+	}
+
 	return nil
 }
 
@@ -85,26 +87,26 @@ func (p *MysqlPreparation) CreateDb(db *gorm.DB, dbName string) error {
 	if dbName == "" {
 		dbName = DEFAULT_DB_NAME
 	}
-	// db := p.GetDB()
 	sql := strings.ReplaceAll(string(content), "@db", dbName)
+	log.Info().Msgf("sql: %s", sql)
 	db.Exec(sql)
 	return nil
 }
 
-func (m *MysqlPreparation) GetDB() *gorm.DB {
-	mysqlConfig := m.config
-	mysqlConnectionString := fmt.Sprintf(MYSQL_TEMPLATE, mysqlConfig.User, mysqlConfig.Pwd, mysqlConfig.Host, mysqlConfig.Db)
-	db, err := gorm.Open("mysql", mysqlConnectionString)
-	defer db.Close()
-	if err != nil {
-		log.Err(err)
-		return nil
-	}
-	return db
-}
+// func (m *MysqlPreparation) getDB() *gorm.DB {
+// 	mysqlConfig := m.config
+// 	mysqlConnectionString := fmt.Sprintf(MYSQL_TEMPLATE, mysqlConfig.User, mysqlConfig.Pwd, mysqlConfig.Host, mysqlConfig.Db)
+// 	db, err := gorm.Open("mysql", mysqlConnectionString)
+// 	// defer db.Close()
+// 	if err != nil {
+// 		log.Err(err)
+// 		return nil
+// 	}
+// 	return db
+// }
 
-// GetDBWithoutClose WARNING: please close db manually
-func (m *MysqlPreparation) GetDBWithoutClose() *gorm.DB {
+// getDBWithoutClose WARNING: please close db manually
+func (m *MysqlPreparation) getDBWithoutClose() *gorm.DB {
 	mysqlConfig := m.config
 	mysqlConnectionString := fmt.Sprintf(MYSQL_TEMPLATE, mysqlConfig.User, mysqlConfig.Pwd, mysqlConfig.Host, mysqlConfig.Db)
 	db, err := gorm.Open("mysql", mysqlConnectionString)
