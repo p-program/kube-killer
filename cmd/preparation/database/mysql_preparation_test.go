@@ -36,5 +36,5 @@ func TestPrepare(t *testing.T) {
 }
 
 func TestCleanUp(t *testing.T) {
-	mySQL.CleanUp("")
+	mySQL.CleanUp()
 }

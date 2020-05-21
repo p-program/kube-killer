@@ -68,13 +68,10 @@ func (p *MysqlPreparation) CreateTable(db *gorm.DB) error {
 	}
 	dbName := p.config.Db
 	sql := strings.ReplaceAll(string(content), "@db", dbName)
+	tableName := p.config.Table
+	sql = strings.ReplaceAll(string(content), "@table", tableName)
 	log.Info().Msgf("sql: %s", sql)
-	db.Exec(sql)
-	tableNames := p.config.Tables
-	for _, table := range tableNames {
-
-	}
-
+	// db.Exec(sql)
 	return nil
 }
 
