@@ -4,8 +4,6 @@
 
 作者 | Zeusro  农村云高级Java劝退专家，曾经负责阿米巴集团 Serverless 自动化摸鱼平台建设，[《Awesome Kubernetes Notes》](https://zeusro-awesome-kubernetes-notes.readthedocs.io/zh_CN/latest/)的第二作者（贡献了1%的内容），曾经是 Maven 中央仓库的抵制者。
 
-[TOC]
-
 ## 前言
 
 我曾经没有写过《Serverless 的喧哗与骚动》这一篇文章，对 Serverless 做了一个比喻：

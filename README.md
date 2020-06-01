@@ -1,5 +1,7 @@
 # kube-killer
 
+[中文文档](README_ZH.md)
+
 ## Inspiration burst
 
 During the Cold War between one of my female friends / (ex-)girlfriends ( She said that we were done ) in these days , there was a crazy idea flashed through my mind:
