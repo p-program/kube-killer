@@ -176,11 +176,14 @@ It‘s an unpredictable command🤣.
 1. [x] kill unused PV
 1. [x] kill unused PVC
 1. [x] kill service without pod
+1. [ ] kill node gracefully
 1. [ ] kill satan
 1. [ ] kill me
 1. [ ] kill stucking namespace
 1. [ ] kill unused configmap
 1. [ ] kill unused secret
+1. [ ] output event
+1. [ ] crashbackoff --> kill deploy
 
 1. [ ] kill StatefulSet
 1. [ ] custom metrics condition support
