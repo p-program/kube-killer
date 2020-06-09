@@ -149,7 +149,6 @@ Then the [kube-killer server](#Web-server-mode) would become some kind of backdo
 
 Finally，you are free to destroy the whole production Kubernetes cluster  remotely （Hhhhhhhhhhhhhhhhhhhhh).
 
-
 ## Serverless mode
 
 ### Binary usage
@@ -186,7 +185,6 @@ It‘s an unpredictable command🤣.
 1. [ ] kill unused secret
 1. [ ] output event
 1. [ ] crashbackoff --> kill deploy
-
 1. [ ] kill StatefulSet
 1. [ ] custom metrics condition support
 

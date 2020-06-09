@@ -16,5 +16,8 @@
 /kube-killer
 *.log
 
+# mac
+.DS_Store
+
 # project
 config.yaml
