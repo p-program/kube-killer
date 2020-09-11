@@ -54,7 +54,6 @@ up:
 
 update-dep: update-mod fix-dep
 
-
 update-mod:
 	go get -u -v github.com/p-program/go-common-library
 	# go-mod-upgrade
