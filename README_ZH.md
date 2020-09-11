@@ -44,7 +44,7 @@
 
 ### 第一：不用关心服务器
 
-假设农村云只有一个 `Kubernetes` `worker node` ，它就算故障了也不会有任何问题。因为我们已经在他故障之前删光了所有的 pod / docker image。
+假设农村云只有一个 `Kubernetes worker node` ，它就算故障了也不会有任何问题。因为我们已经在他故障之前删光了所有的 pod / docker image。
 
 ### 第二：自动弹性
 
