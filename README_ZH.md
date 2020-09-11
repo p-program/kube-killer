@@ -76,7 +76,9 @@ pod 都删没了，deployment 副本数都设置为 0 了，还付费个毛。
 
 ![image](/docs/img/serverless/4.png)
 
-在这方面，广州地铁有着非常多的经验。具体可参考《
+在这方面，
+[广州地铁](http://www.bullshitprogram.com/guangzhou-metro/)
+有着非常多的经验。具体可参考《
 [藤原拓海教你怎么上下班](http://www.bullshitprogram.com/initial-d/)
 》。
 
@@ -90,9 +92,13 @@ pod 都删没了，deployment 副本数都设置为 0 了，还付费个毛。
 
 我在
 [OAM specification](https://github.com/oam-dev/spec)
-里面提了个 [issue](https://github.com/oam-dev/spec/issues/354)。
+里面提了个 
+[issue](https://github.com/oam-dev/spec/issues/354)
+。
 
-如果我的理解没有偏差的话，目前 OAM 是通过 [Traits](https://github.com/oam-dev/spec/blob/master/6.traits.md) 来定义应用就绪的约定条件。
+如果我的理解没有偏差的话，目前 OAM 是通过 
+[Traits](https://github.com/oam-dev/spec/blob/master/6.traits.md) 
+来定义应用就绪的约定条件。
 
 我很看好这个项目，希望大家也能参与进来，一起贡(B)献(B)。
 
@@ -104,11 +110,16 @@ pod 都删没了，deployment 副本数都设置为 0 了，还付费个毛。
 
 > 开电脑 --> 登堡垒机 --> 导出日志
 
-然后我就觉得卧槽，这也太睿（傻）智（逼）了吧。后来我决定杀死运维。
+然后我就觉得卧槽，这也太睿（傻）智（逼）了吧。后来我决定
+[亲手杀死传统运维工程师](https://developer.aliyun.com/article/765447)
+。
 
 因为我们主要的平台是阿里云，所以我们的方案是
-1. 监控用Elastic Search
+1. 监控用自建 Elastic Search
 [按月自动分片 Elastic Search Index](http://www.zeusro.com/2019/04/10/elasticsearch-api/#ingestpipeline-%E7%94%A8%E6%B3%95) 
+1. 产品深度绑定阿里云
+1. 在阿里云花多点钱，然后疯狂吐槽阿里云
+1. 自行开发 service mesh 组件
 
 ## 小结
 
