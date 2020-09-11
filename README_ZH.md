@@ -117,7 +117,7 @@ pod 都删没了，deployment 副本数都设置为 0 了，还付费个毛。
 因为我们主要的平台是阿里云，所以我们的方案是
 1. 监控用自建 Elastic Search
 [按月自动分片 Elastic Search Index](http://www.zeusro.com/2019/04/10/elasticsearch-api/#ingestpipeline-%E7%94%A8%E6%B3%95) 
-1. 产品深度绑定阿里云
+1. 第三方服务深度绑定阿里云
 1. 在阿里云花多点钱，然后疯狂吐槽阿里云
 1. 自行开发 service mesh 组件
 
