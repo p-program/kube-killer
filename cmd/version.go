@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"fmt"
+
 	"github.com/spf13/cobra"
 )
 
@@ -14,7 +16,7 @@ func newVersionCommand() *cobra.Command {
 		Short: "Print the version number of kube-killer",
 		Long:  `All software has versions. This is kube-killer's version`,
 		Run: func(cmd *cobra.Command, args []string) {
-			// fmt.Printf("v%s", VERSION)
+			fmt.Printf("current version: v%s", VERSION)
 		},
 	}
 }

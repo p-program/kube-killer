@@ -151,9 +151,21 @@ Finally，you are free to destroy the whole production Kubernetes cluster  remot
 
 ## Serverless mode
 
+```bash
+
+```
+
 ### Binary usage
 
+```bash
+
+```
+
 ### CLI usage
+
+```bash
+
+```
 
 ## Bazinga Punk
 

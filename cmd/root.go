@@ -28,7 +28,6 @@ func Execute() error {
 
 func init() {
 	cobra.OnInitialize(initConfig)
-
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.config.yaml)")
 	rootCmd.PersistentFlags().StringVarP(&userLicense, "license", "l", "", "name of license for the project")
 	rootCmd.PersistentFlags().Bool("viper", true, "use Viper for configuration")
@@ -42,7 +41,9 @@ func init() {
 
 func bindCommand() {
 	rootCmd.AddCommand(newVersionCommand())
-	rootCmd.AddCommand(killer.NewKillCommand())
+	kill := killer.NewKillCommand()
+	rootCmd.AddCommand(kill)
+	kill.AddCommand()
 }
 
 func er(msg interface{}) {

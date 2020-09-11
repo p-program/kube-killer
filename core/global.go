@@ -19,7 +19,6 @@ func init() {
 func initKubernetesConfig() {
 	var kubeconfig string
 	home := homeDir()
-	// c := ""
 	if home != "" {
 		kubeconfig = filepath.Join(home, ".kube", "config")
 	} else {
