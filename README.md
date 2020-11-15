@@ -15,7 +15,7 @@ So, I create such a **super Kubernetes virus**, I would like to call it [kube-ki
 🤣 `kube-killer` is a tool helping you kill (unused) kubernetes‘s resource.
 
 You can delete kubernetes‘s resource （deploy，pod，statefulset and so on） based on time schedule ⏰,
- custom metrics or custom condition.
+custom metrics or custom condition.
 
 It is a humane killer, he could also freeze the deploy without killing it (scale to 0）.
 
@@ -164,6 +164,9 @@ Finally，you are free to destroy the whole production Kubernetes cluster  remot
 ### CLI usage
 
 ```bash
+kube-killer kill po
+kube-killer kill pod
+
 
 ```
 
@@ -184,7 +187,7 @@ It‘s an unpredictable command🤣.
 1. [ ] kube-killer prepare
     1. [ ] prepare MYSQL
     1. [ ] prepare kube-killer server
-1. [ ] freeze resource
+1. [ ] freeze resource = kubectl scale --replicas=0 statefulset/web
 1. [x] kill completed/failed pod automatically
 1. [x] kill unused PV
 1. [x] kill unused PVC
@@ -196,8 +199,7 @@ It‘s an unpredictable command🤣.
 1. [ ] kill unused configmap
 1. [ ] kill unused secret
 1. [ ] output event
-1. [ ] crashbackoff --> kill deploy
-1. [ ] kill StatefulSet
+1. [ ] crashbackoff --> freeze deploy
 1. [ ] custom metrics condition support
 
 ### severless

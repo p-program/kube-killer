@@ -31,6 +31,7 @@ func NewPodKiller(namespace string) (*PodKiller, error) {
 		namespace: namespace,
 		client:    clientset,
 	}
+	log.Info().Msgf("namespace:%s", namespace)
 	var gracePeriodSeconds int64 = 1
 	k.deleteOption = metav1.DeleteOptions{
 		GracePeriodSeconds: &gracePeriodSeconds,
@@ -67,6 +68,7 @@ func (k *PodKiller) Kill() error {
 // KillNonRunningPods kill Evicted,Completed pods
 // TODO:need to test pod.Status.Phase=Terminating | Pending
 func (k *PodKiller) KillNonRunningPods() error {
+	log.Warn().Msg("KillNonRunningPods")
 	listOption := metav1.ListOptions{FieldSelector: "status.phase!=Running"}
 	pList, err := k.client.CoreV1().Pods(k.namespace).List(context.TODO(), listOption)
 	if err != nil {
@@ -99,6 +101,7 @@ func (k *PodKiller) KillHalfPods() error {
 
 // KillAllPods delete all pods
 func (k *PodKiller) KillAllPods() error {
+	log.Warn().Msg("KillAllPods")
 	pods, err := k.getPods(nil)
 	if err != nil {
 		return err
