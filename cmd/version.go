@@ -10,7 +10,7 @@ const (
 	VERSION = "1.0.0"
 )
 
-func newVersionCommand() *cobra.Command {
+func NewVersionCommand() *cobra.Command {
 	return &cobra.Command{
 		Use:   "version",
 		Short: "Print the version number of kube-killer",

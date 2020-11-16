@@ -40,10 +40,12 @@ func init() {
 }
 
 func bindCommand() {
-	rootCmd.AddCommand(newVersionCommand())
+	rootCmd.AddCommand(NewVersionCommand())
+	rootCmd.AddCommand(NewFreezeCommand())
 	kill := killer.NewKillCommand()
 	rootCmd.AddCommand(kill)
 	kill.AddCommand()
+
 }
 
 func er(msg interface{}) {
