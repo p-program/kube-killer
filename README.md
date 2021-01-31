@@ -51,6 +51,13 @@ Just remember:
 
 ## Server mode
 
+### TODO
+1. [ ] kube-killer prepare
+    1. [ ] prepare MYSQL
+    1. [ ] prepare kube-killer server
+1. [ ] crashbackoff --> freeze deploy
+1. [ ] kill me
+
 ```bash
 git clone https://github.com/p-program/kube-killer.git
 make build
@@ -151,6 +158,19 @@ Finally，you are free to destroy the whole production Kubernetes cluster  remot
 
 ## Serverless mode
 
+1. [ ] freeze resource = kubectl scale --replicas=0 statefulset/web
+1. [x] kill completed/failed pod automatically
+1. [x] kill unused PV
+1. [x] kill unused PVC
+1. [x] kill service without pod
+1. [ ] kill node gracefully
+1. [ ] kill satan
+1. [ ] kill stucking namespace
+1. [ ] kill unused configmap
+1. [x] kill unused secret
+1. [ ] output event
+1. [ ] custom metrics condition support
+
 ```bash
 
 ```
@@ -182,25 +202,6 @@ kube-killer kill me
 
 It‘s an unpredictable command🤣.
 
-## TODO(NEVER DO)
-
-1. [ ] kube-killer prepare
-    1. [ ] prepare MYSQL
-    1. [ ] prepare kube-killer server
-1. [ ] freeze resource = kubectl scale --replicas=0 statefulset/web
-1. [x] kill completed/failed pod automatically
-1. [x] kill unused PV
-1. [x] kill unused PVC
-1. [x] kill service without pod
-1. [ ] kill node gracefully
-1. [ ] kill satan
-1. [ ] kill me
-1. [ ] kill stucking namespace
-1. [ ] kill unused configmap
-1. [ ] kill unused secret
-1. [ ] output event
-1. [ ] crashbackoff --> freeze deploy
-1. [ ] custom metrics condition support
 
 ### severless
 

@@ -1,0 +1,554 @@
+apiVersion: v1
+kind: Node
+metadata:
+  annotations:
+    csi.volume.kubernetes.io/nodeid: '{"com.tencent.cloud.csi.cfs":"10.0.0.8","com.tencent.cloud.csi.cosfs":"10.0.0.8"}'
+    node.alpha.kubernetes.io/ttl: "0"
+    volumes.kubernetes.io/controller-managed-attach-detach: "true"
+  creationTimestamp: "2020-11-05T08:00:26Z"
+  labels:
+    beta.kubernetes.io/arch: amd64
+    beta.kubernetes.io/instance-type: QCLOUD
+    beta.kubernetes.io/os: linux
+    cloud.tencent.com/node-instance-id: ins-4bpqlvl2
+    failure-domain.beta.kubernetes.io/region: nj
+    failure-domain.beta.kubernetes.io/zone: "330001"
+    kubernetes.io/arch: amd64
+    kubernetes.io/hostname: 10.0.0.8
+    kubernetes.io/os: linux
+    node.kubernetes.io/instance-type: QCLOUD
+    topology.kubernetes.io/region: nj
+    topology.kubernetes.io/zone: "330001"
+  managedFields:
+  - apiVersion: v1
+    fieldsType: FieldsV1
+    fieldsV1:
+      f:metadata:
+        f:annotations:
+          f:node.alpha.kubernetes.io/ttl: {}
+      f:spec:
+        f:podCIDR: {}
+        f:podCIDRs:
+          .: {}
+          v:"172.16.0.0/26": {}
+      f:status:
+        f:conditions:
+          k:{"type":"NetworkUnavailable"}:
+            .: {}
+            f:lastHeartbeatTime: {}
+            f:lastTransitionTime: {}
+            f:message: {}
+            f:reason: {}
+            f:status: {}
+            f:type: {}
+    manager: kube-controller-manager
+    operation: Update
+    time: "2020-11-05T08:00:46Z"
+  - apiVersion: v1
+    fieldsType: FieldsV1
+    fieldsV1:
+      f:metadata:
+        f:labels:
+          f:cloud.tencent.com/node-instance-id: {}
+    manager: nightsWatch
+    operation: Update
+    time: "2020-11-05T08:00:49Z"
+  - apiVersion: v1
+    fieldsType: FieldsV1
+    fieldsV1:
+      f:status:
+        f:conditions:
+          k:{"type":"SerfFailed"}:
+            .: {}
+            f:lastHeartbeatTime: {}
+            f:lastTransitionTime: {}
+            f:message: {}
+            f:reason: {}
+            f:status: {}
+            f:type: {}
+    manager: holder
+    operation: Update
+    time: "2020-11-05T08:01:47Z"
+  - apiVersion: v1
+    fieldsType: FieldsV1
+    fieldsV1:
+      f:status:
+        f:conditions:
+          k:{"type":"ContainerdProblem"}:
+            .: {}
+            f:lastHeartbeatTime: {}
+            f:lastTransitionTime: {}
+            f:message: {}
+            f:reason: {}
+            f:status: {}
+            f:type: {}
+          k:{"type":"CorruptDockerOverlay2"}:
+            .: {}
+            f:lastHeartbeatTime: {}
+            f:lastTransitionTime: {}
+            f:message: {}
+            f:reason: {}
+            f:status: {}
+            f:type: {}
+          k:{"type":"CustomPIDPressure"}:
+            .: {}
+            f:lastHeartbeatTime: {}
+            f:lastTransitionTime: {}
+            f:message: {}
+            f:reason: {}
+            f:status: {}
+            f:type: {}
+          k:{"type":"DockerdProblem"}:
+            .: {}
+            f:lastHeartbeatTime: {}
+            f:lastTransitionTime: {}
+            f:message: {}
+            f:reason: {}
+            f:status: {}
+            f:type: {}
+          k:{"type":"FDPressure"}:
+            .: {}
+            f:lastHeartbeatTime: {}
+            f:lastTransitionTime: {}
+            f:message: {}
+            f:reason: {}
+            f:status: {}
+            f:type: {}
+          k:{"type":"FrequentContainerdRestart"}:
+            .: {}
+            f:lastHeartbeatTime: {}
+            f:lastTransitionTime: {}
+            f:message: {}
+            f:reason: {}
+            f:status: {}
+            f:type: {}
+          k:{"type":"FrequentDockerRestart"}:
+            .: {}
+            f:lastHeartbeatTime: {}
+            f:lastTransitionTime: {}
+            f:message: {}
+            f:reason: {}
+            f:status: {}
+            f:type: {}
+          k:{"type":"FrequentKubeletRestart"}:
+            .: {}
+            f:lastHeartbeatTime: {}
+            f:lastTransitionTime: {}
+            f:message: {}
+            f:reason: {}
+            f:status: {}
+            f:type: {}
+          k:{"type":"KernelDeadlock"}:
+            .: {}
+            f:lastHeartbeatTime: {}
+            f:lastTransitionTime: {}
+            f:message: {}
+            f:reason: {}
+            f:status: {}
+            f:type: {}
+          k:{"type":"KubeletProblem"}:
+            .: {}
+            f:lastHeartbeatTime: {}
+            f:lastTransitionTime: {}
+            f:message: {}
+            f:reason: {}
+            f:status: {}
+            f:type: {}
+          k:{"type":"NFConntrackPressure"}:
+            .: {}
+            f:lastHeartbeatTime: {}
+            f:lastTransitionTime: {}
+            f:message: {}
+            f:reason: {}
+            f:status: {}
+            f:type: {}
+          k:{"type":"ReadonlyFilesystem"}:
+            .: {}
+            f:lastHeartbeatTime: {}
+            f:lastTransitionTime: {}
+            f:message: {}
+            f:reason: {}
+            f:status: {}
+            f:type: {}
+          k:{"type":"ThreadPressure"}:
+            .: {}
+            f:lastHeartbeatTime: {}
+            f:lastTransitionTime: {}
+            f:message: {}
+            f:reason: {}
+            f:status: {}
+            f:type: {}
+    manager: node-problem-detector
+    operation: Update
+    time: "2021-01-29T14:29:12Z"
+  - apiVersion: v1
+    fieldsType: FieldsV1
+    fieldsV1:
+      f:metadata:
+        f:annotations:
+          .: {}
+          f:csi.volume.kubernetes.io/nodeid: {}
+          f:volumes.kubernetes.io/controller-managed-attach-detach: {}
+        f:labels:
+          .: {}
+          f:beta.kubernetes.io/arch: {}
+          f:beta.kubernetes.io/instance-type: {}
+          f:beta.kubernetes.io/os: {}
+          f:failure-domain.beta.kubernetes.io/region: {}
+          f:failure-domain.beta.kubernetes.io/zone: {}
+          f:kubernetes.io/arch: {}
+          f:kubernetes.io/hostname: {}
+          f:kubernetes.io/os: {}
+          f:node.kubernetes.io/instance-type: {}
+          f:topology.kubernetes.io/region: {}
+          f:topology.kubernetes.io/zone: {}
+      f:spec:
+        f:providerID: {}
+      f:status:
+        f:addresses:
+          .: {}
+          k:{"type":"ExternalIP"}:
+            .: {}
+            f:address: {}
+            f:type: {}
+          k:{"type":"Hostname"}:
+            .: {}
+            f:address: {}
+            f:type: {}
+          k:{"type":"InternalIP"}:
+            .: {}
+            f:address: {}
+            f:type: {}
+        f:allocatable:
+          .: {}
+          f:cpu: {}
+          f:ephemeral-storage: {}
+          f:hugepages-1Gi: {}
+          f:hugepages-2Mi: {}
+          f:memory: {}
+          f:pods: {}
+        f:capacity:
+          .: {}
+          f:cpu: {}
+          f:ephemeral-storage: {}
+          f:hugepages-1Gi: {}
+          f:hugepages-2Mi: {}
+          f:memory: {}
+          f:pods: {}
+        f:conditions:
+          .: {}
+          k:{"type":"DiskPressure"}:
+            .: {}
+            f:lastHeartbeatTime: {}
+            f:lastTransitionTime: {}
+            f:message: {}
+            f:reason: {}
+            f:status: {}
+            f:type: {}
+          k:{"type":"MemoryPressure"}:
+            .: {}
+            f:lastHeartbeatTime: {}
+            f:lastTransitionTime: {}
+            f:message: {}
+            f:reason: {}
+            f:status: {}
+            f:type: {}
+          k:{"type":"PIDPressure"}:
+            .: {}
+            f:lastHeartbeatTime: {}
+            f:lastTransitionTime: {}
+            f:message: {}
+            f:reason: {}
+            f:status: {}
+            f:type: {}
+          k:{"type":"Ready"}:
+            .: {}
+            f:lastHeartbeatTime: {}
+            f:lastTransitionTime: {}
+            f:message: {}
+            f:reason: {}
+            f:status: {}
+            f:type: {}
+        f:daemonEndpoints:
+          f:kubeletEndpoint:
+            f:Port: {}
+        f:images: {}
+        f:nodeInfo:
+          f:architecture: {}
+          f:bootID: {}
+          f:containerRuntimeVersion: {}
+          f:kernelVersion: {}
+          f:kubeProxyVersion: {}
+          f:kubeletVersion: {}
+          f:machineID: {}
+          f:operatingSystem: {}
+          f:osImage: {}
+          f:systemUUID: {}
+    manager: kubelet
+    operation: Update
+    time: "2021-01-29T14:32:00Z"
+  name: 10.0.0.8
+  resourceVersion: "6059494395"
+  selfLink: /api/v1/nodes/10.0.0.8
+  uid: 662fc1d4-a5c2-424d-a050-6d4a72f1137f
+spec:
+  podCIDR: 172.16.0.0/26
+  podCIDRs:
+  - 172.16.0.0/26
+  providerID: qcloud:///330001/ins-4bpqlvl2
+status:
+  addresses:
+  - address: 10.0.0.8
+    type: InternalIP
+  - address: 175.27.128.5
+    type: ExternalIP
+  - address: 10.0.0.8
+    type: Hostname
+  allocatable:
+    cpu: 3920m
+    ephemeral-storage: "47498714648"
+    hugepages-1Gi: "0"
+    hugepages-2Mi: "0"
+    memory: 6820932Ki
+    pods: "61"
+  capacity:
+    cpu: "4"
+    ephemeral-storage: 51539404Ki
+    hugepages-1Gi: "0"
+    hugepages-2Mi: "0"
+    memory: 7773252Ki
+    pods: "61"
+  conditions:
+  - lastHeartbeatTime: "2021-01-29T14:29:12Z"
+    lastTransitionTime: "2020-11-05T08:01:02Z"
+    message: containerd is functioning properly
+    reason: NoFrequentContainerdRestart
+    status: "False"
+    type: FrequentContainerdRestart
+  - lastHeartbeatTime: "2021-01-29T14:29:12Z"
+    lastTransitionTime: "2020-11-05T08:01:02Z"
+    message: FD is Under Pressure
+    reason: FDUnderPressure
+    status: "False"
+    type: FDPressure
+  - lastHeartbeatTime: "2021-01-29T14:29:12Z"
+    lastTransitionTime: "2020-11-05T08:01:02Z"
+    message: docker is functioning properly
+    reason: NoFrequentDockerRestart
+    status: "False"
+    type: FrequentDockerRestart
+  - lastHeartbeatTime: "2021-01-29T14:29:12Z"
+    lastTransitionTime: "2020-11-05T08:01:02Z"
+    message: Kubelet service is up
+    reason: KubeletIsUp
+    status: "False"
+    type: KubeletProblem
+  - lastHeartbeatTime: "2021-01-29T14:29:12Z"
+    lastTransitionTime: "2020-11-05T08:01:01Z"
+    message: Filesystem is not read-only
+    reason: FilesystemIsNotReadOnly
+    status: "False"
+    type: ReadonlyFilesystem
+  - lastHeartbeatTime: "2021-01-29T14:29:12Z"
+    lastTransitionTime: "2020-11-05T08:01:02Z"
+    message: NFConntrack is Under Pressure
+    reason: NFConntrackPressure
+    status: "False"
+    type: NFConntrackPressure
+  - lastHeartbeatTime: "2021-01-29T14:29:12Z"
+    lastTransitionTime: "2020-11-05T08:01:02Z"
+    message: kubelet is functioning properly
+    reason: NoFrequentKubeletRestart
+    status: "False"
+    type: FrequentKubeletRestart
+  - lastHeartbeatTime: "2021-01-29T14:29:12Z"
+    lastTransitionTime: "2020-11-05T08:01:01Z"
+    message: docker overlay2 is functioning properly
+    reason: NoCorruptDockerOverlay2
+    status: "False"
+    type: CorruptDockerOverlay2
+  - lastHeartbeatTime: "2021-01-29T14:29:12Z"
+    lastTransitionTime: "2020-11-05T08:01:02Z"
+    message: dockerd service is up
+    reason: DokcerdIsUp
+    status: "False"
+    type: DockerdProblem
+  - lastHeartbeatTime: "2021-01-29T14:29:12Z"
+    lastTransitionTime: "2020-11-05T08:01:02Z"
+    message: PID is Under Pressure
+    reason: PIDUnderPressure
+    status: "False"
+    type: CustomPIDPressure
+  - lastHeartbeatTime: "2021-01-29T14:29:12Z"
+    lastTransitionTime: "2020-11-05T08:01:01Z"
+    message: kernel has no deadlock
+    reason: KernelHasNoDeadlock
+    status: "False"
+    type: KernelDeadlock
+  - lastHeartbeatTime: "2021-01-29T14:29:12Z"
+    lastTransitionTime: "2020-11-05T08:01:02Z"
+    message: Containerd service is up
+    reason: ContainerdIsUp
+    status: "False"
+    type: ContainerdProblem
+  - lastHeartbeatTime: "2021-01-29T14:29:12Z"
+    lastTransitionTime: "2020-11-05T08:01:02Z"
+    message: Thread is Under Pressure
+    reason: ThreadUnderPressure
+    status: "False"
+    type: ThreadPressure
+  - lastHeartbeatTime: "2020-11-05T08:00:32Z"
+    lastTransitionTime: "2020-11-05T08:00:32Z"
+    message: RouteController created a route
+    reason: RouteCreated
+    status: "False"
+    type: NetworkUnavailable
+  - lastHeartbeatTime: "2021-01-29T14:32:00Z"
+    lastTransitionTime: "2020-11-05T08:00:26Z"
+    message: kubelet has sufficient memory available
+    reason: KubeletHasSufficientMemory
+    status: "False"
+    type: MemoryPressure
+  - lastHeartbeatTime: "2021-01-29T14:32:00Z"
+    lastTransitionTime: "2020-11-05T08:00:26Z"
+    message: kubelet has no disk pressure
+    reason: KubeletHasNoDiskPressure
+    status: "False"
+    type: DiskPressure
+  - lastHeartbeatTime: "2021-01-29T14:32:00Z"
+    lastTransitionTime: "2020-11-05T08:00:26Z"
+    message: kubelet has sufficient PID available
+    reason: KubeletHasSufficientPID
+    status: "False"
+    type: PIDPressure
+  - lastHeartbeatTime: "2021-01-29T14:32:00Z"
+    lastTransitionTime: "2020-11-05T08:00:46Z"
+    message: kubelet is posting ready status. AppArmor enabled
+    reason: KubeletReady
+    status: "True"
+    type: Ready
+  - lastHeartbeatTime: "2020-11-05T08:01:47Z"
+    lastTransitionTime: "2020-11-05T08:01:47Z"
+    message: serf on the node status is Ready
+    reason: serf is ready
+    status: "False"
+    type: SerfFailed
+  daemonEndpoints:
+    kubeletEndpoint:
+      Port: 10250
+  images:
+  - names:
+    - ccr.ccs.tencentyun.com/tkeimages/hyperkube@sha256:a32a996d77dab4cd5fb78d20d9cf88a71e7b04ddc86424db2c78600a82e37be7
+    - ccr.ccs.tencentyun.com/tkeimages/hyperkube:v1.18.4-tke.3
+    sizeBytes: 632413165
+  - names:
+    - ccr.ccs.tencentyun.com/ccs-dev/csi-tencentcloud-cos-launcher@sha256:3f32822052a42897e57df5e406cc7245b2be23ee7ea292bc64bd47ccb4fcff8b
+    - ccr.ccs.tencentyun.com/ccs-dev/csi-tencentcloud-cos-launcher:1.0.0
+    sizeBytes: 326598427
+  - names:
+    - ccr.ccs.tencentyun.com/ccs-dev/csi-tencentcloud-cfs@sha256:9f7b139221e298cb43baa61b6748d730210bfbcd718f0444df85991ade727254
+    - ccr.ccs.tencentyun.com/ccs-dev/csi-tencentcloud-cfs:1.0.0
+    sizeBytes: 294452248
+  - names:
+    - ccr.ccs.tencentyun.com/tkeimages/gpu-quota-admission@sha256:ff11f85588daa237cefcbfb55f037dfc64cd8946d6eeefc78a730ef338dffd0a
+    - ccr.ccs.tencentyun.com/tkeimages/gpu-quota-admission:latest
+    sizeBytes: 276704847
+  - names:
+    - ccr.ccs.tencentyun.com/npd-tools/node-problem-detector@sha256:c3a20ed51eb5b6d25911720f7fbb3a0410c21dfa53f60425951fbefb2c3a2502
+    - ccr.ccs.tencentyun.com/npd-tools/node-problem-detector:v2.0.0
+    sizeBytes: 134666410
+  - names:
+    - ccr.ccs.tencentyun.com/tkeimages/tke-cni-agent@sha256:bcbdf7469e8e6a825bc4223607fc0315f1123ffeceeb8ca58927f947e92de696
+    - ccr.ccs.tencentyun.com/tkeimages/tke-cni-agent:v0.0.7
+    sizeBytes: 117894611
+  - names:
+    - ccr.ccs.tencentyun.com/tkeimages/log-agent@sha256:a7c5cb43aa431d747b93095231ee0780fa51e205d0b9de99e557d9c4dc1efdce
+    - ccr.ccs.tencentyun.com/tkeimages/log-agent:v0.2.8
+    sizeBytes: 108559047
+  - names:
+    - ccr.ccs.tencentyun.com/tcrimages/k8s-dns-node-cache@sha256:10e3fdee1135f62f5ba98daed65592ffcdfc99d641d3e0e8b0e70673f96b4e61
+    - ccr.ccs.tencentyun.com/tcrimages/k8s-dns-node-cache:1.15.13
+    sizeBytes: 107093136
+  - names:
+    - ccr.ccs.tencentyun.com/tkeimages/cls-provisioner@sha256:e1a27e86d9f56a813b7c596a8c9147412d3ba1c8eaa25a71653b7c41341bcee8
+    - ccr.ccs.tencentyun.com/tkeimages/cls-provisioner:v0.2.3
+    sizeBytes: 106559093
+  - names:
+    - ccr.ccs.tencentyun.com/library/qcloud_ingress_controller@sha256:81c1e80b4afd6159c06d74f8d7f320275b7ddde5d23b0db12bc6caefedbb3c63
+    - ccr.ccs.tencentyun.com/library/qcloud_ingress_controller:d32c0a24
+    sizeBytes: 80497736
+  - names:
+    - ccr.ccs.tencentyun.com/library/qcloud_ingress_controller@sha256:f25bafa09c28a4e769c82ddb8f24e70ffd9dd9a170e544035fd4e0bca7839d1e
+    - ccr.ccs.tencentyun.com/library/qcloud_ingress_controller:dff01037
+    sizeBytes: 80467234
+  - names:
+    - ccr.ccs.tencentyun.com/tkeimages/loglistener@sha256:6f517ef9ade3231f8971d35db67cfc41e6cfd2c6665990621a9edf08dce0dae9
+    - ccr.ccs.tencentyun.com/tkeimages/loglistener:v2.3.6
+    sizeBytes: 73759442
+  - names:
+    - ccr.ccs.tencentyun.com/ccs-dev/csi-attacher@sha256:751c19589b81522dcf10b56cd4c9cf974e91841e4a33fbb192a77bb010ce757d
+    - ccr.ccs.tencentyun.com/ccs-dev/csi-attacher:1.0.1
+    sizeBytes: 50168619
+  - names:
+    - ccr.ccs.tencentyun.com/tkeimages/serf-holder@sha256:df219e3941b464527f85c19cdeb0e083457c2a678adaddfceb19b1eec35e7ef9
+    - ccr.ccs.tencentyun.com/tkeimages/serf-holder:v1.0
+    sizeBytes: 48986113
+  - names:
+    - ccr.ccs.tencentyun.com/library/ip-masq-agent@sha256:1328176297074ae5427db0c66f2fd18a39404e8053eb8f45a5af43fa7b0bbf7e
+    - ccr.ccs.tencentyun.com/library/ip-masq-agent:latest
+    sizeBytes: 48645472
+  - names:
+    - ccr.ccs.tencentyun.com/ccs-dev/csi-provisioner@sha256:d93acc086d68649876f37b2d1fa3d0d9e59aa5252cd75282a1dbbbef7f036954
+    - ccr.ccs.tencentyun.com/ccs-dev/csi-provisioner:1.0.1
+    sizeBytes: 47974767
+  - names:
+    - ccr.ccs.tencentyun.com/library/coredns@sha256:4dd4d0e5bcc9bd0e8189f6fa4d4965ffa81207d8d99d29391f28cbd1a70a0163
+    - ccr.ccs.tencentyun.com/library/coredns:1.6.2
+    sizeBytes: 44100963
+  - names:
+    - ccr.ccs.tencentyun.com/tkeimages/tke-bridge-agent@sha256:065fdc1abfd04a950bef2e2000bba8ffd573ce72be97d0b9909155e0142534c2
+    - ccr.ccs.tencentyun.com/tkeimages/tke-bridge-agent:v0.0.4
+    sizeBytes: 43258244
+  - names:
+    - ccr.ccs.tencentyun.com/tcrimages/cluster-proportional-autoscaler@sha256:be8875e5584750b7a490244ee56a121a714aa3d124164a5090cd8b3570c5650f
+    - ccr.ccs.tencentyun.com/tcrimages/cluster-proportional-autoscaler:1.8.1
+    sizeBytes: 40684734
+  - names:
+    - ccr.ccs.tencentyun.com/paas/k8s-event-writer@sha256:13d962b73898ca39ac526c440d60b96801472b7a91c60e76f77df4867a9f5d97
+    - ccr.ccs.tencentyun.com/paas/k8s-event-writer:v1.6
+    sizeBytes: 34167206
+  - names:
+    - ccr.ccs.tencentyun.com/tkeimages/oomguard@sha256:930d857b859c5ec3cbe7d3166b81304b010f078557c8f339c83e37a69852796b
+    - ccr.ccs.tencentyun.com/tkeimages/oomguard:v2.0
+    sizeBytes: 25674917
+  - names:
+    - ccr.ccs.tencentyun.com/ccs-dev/csi-node-driver-registrar@sha256:0b42c3e5c2a69a07d6381eea7279230e328d8fedf27bee24059772892c2f2704
+    - ccr.ccs.tencentyun.com/ccs-dev/csi-node-driver-registrar:1.0.2
+    sizeBytes: 20061687
+  - names:
+    - ccr.ccs.tencentyun.com/ccs-dev/csi-tencentcloud-cos@sha256:e930629aca23ae6f3dafafc66690a3fdb5eb723ae8eea2864f22b1047fdd98ee
+    - ccr.ccs.tencentyun.com/ccs-dev/csi-tencentcloud-cos:1.0.0
+    sizeBytes: 19066479
+  - names:
+    - ccr.ccs.tencentyun.com/tkeimages/serf@sha256:bdbc4ff0c799392fd4e937bc2d4e60741215e36dea6584437735d5f8d02e7f19
+    - ccr.ccs.tencentyun.com/tkeimages/serf:v0.8.2
+    sizeBytes: 16133687
+  - names:
+    - busybox@sha256:a9286defaba7b3a519d585ba0e37d0b2cbee74ebfe590960b0b1d6a5e97d1e1d
+    - busybox:latest
+    sizeBytes: 1231733
+  - names:
+    - ccr.ccs.tencentyun.com/library/pause@sha256:4a1c4b21597c1b4415bdbecb28a3296c6b5e23ca4f9feeb599860a1dac6a0108
+    - ccr.ccs.tencentyun.com/library/pause:latest
+    sizeBytes: 682696
+  nodeInfo:
+    architecture: amd64
+    bootID: 6734ea81-16ff-43aa-9223-b2d23a206ada
+    containerRuntimeVersion: docker://18.6.3-ce-tke.1
+    kernelVersion: 4.14.105-19-0012
+    kubeProxyVersion: v1.18.4-tke.3
+    kubeletVersion: v1.18.4-tke.3
+    machineID: 4211ff3f594041f3966d836585a11a05
+    operatingSystem: linux
+    osImage: Ubuntu 18.04.1 LTS
+    systemUUID: 5CF02237-0D55-486D-96A4-94C2AF7B8F20

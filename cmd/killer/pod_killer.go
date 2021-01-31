@@ -4,11 +4,14 @@ import (
 	"context"
 
 	"github.com/p-program/kube-killer/core"
+	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
+	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/tools/pager"
 )
 
 // PodKiller See https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/
@@ -92,6 +95,31 @@ func (k *PodKiller) getPods(labelMap map[string]string) (*v1.PodList, error) {
 		listOptions.LabelSelector = labelSelector.String()
 	}
 	return k.client.CoreV1().Pods(k.namespace).List(context.TODO(), listOptions)
+}
+
+func (k *PodKiller) getAllPodsInCurrentNamespace() ([]*v1.Pod, error) {
+	p := pager.New(pager.SimplePageFunc(func(opts metav1.ListOptions) (runtime.Object, error) {
+		list, err := k.client.CoreV1().Pods(namespace).List(context.TODO(), opts)
+		if err != nil {
+			return nil, errors.Wrap(err, "cannot retrieve pods")
+		}
+		return list, nil
+	}))
+	p.PageSize = 500
+	ctx := context.Background()
+	pods := []*v1.Pod{}
+	err := p.EachListItem(ctx, metav1.ListOptions{}, func(obj runtime.Object) error {
+		pod, ok := obj.(*v1.Pod)
+		if !ok {
+			return errors.Errorf("this is not a pod: %#v", obj)
+		}
+		pods = append(pods, pod)
+		return nil
+	})
+	if err != nil {
+		return []*v1.Pod{}, errors.Wrap(err, "cannot iterate secrets")
+	}
+	return pods, nil
 }
 
 func (k *PodKiller) KillHalfPods() error {
