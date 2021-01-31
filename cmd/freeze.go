@@ -5,20 +5,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-type Icebox struct {
-}
-
-func NewIcebox() *Icebox {
-	i := Icebox{}
-
-	return &i
-}
-
-// Freeze set deployment/statefulset/ zero size
-func (i *Icebox) Freeze() {
-
-}
-
 func init() {
 
 }
@@ -39,6 +25,12 @@ func NewFreezeCommand() *cobra.Command {
 				log.Error().Msgf("%s:len(args) < 2", "freeze.go")
 				return
 			}
+			icebox, err := NewIcebox(namespace)
+			if err != nil {
+				log.Error().Err(err)
+				return
+			}
+			icebox.Freeze(args[0], args[1])
 		}}
 	c.PersistentFlags().StringVarP(&namespace, "namespace", "n", "default", "working namespace")
 	c.PersistentFlags().BoolVarP(&dryRun, "dryrun", "d", false, "dryRun")
