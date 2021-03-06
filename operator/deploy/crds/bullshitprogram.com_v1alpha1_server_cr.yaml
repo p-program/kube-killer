@@ -1,7 +1,0 @@
-apiVersion: bullshitprogram.com/v1alpha1
-kind: Server
-metadata:
-  name: example-server
-spec:
-  # Add fields here
-  size: 3
