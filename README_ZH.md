@@ -1,3 +1,5 @@
+`惟草木之零落兮，恐美人之迟暮`
+
 # 滑稽的背后：Serverless 的概念及挑战
 
 本文作者作为阿米巴集团 Serverless 自动化摸鱼平台负责人，从应用架构的角度去分析 Serverless 为何会让那么多人着迷，它的核心概念究竟是什么，并总结了一些落地 Serverless 必然会面临的问题。
@@ -64,7 +66,7 @@ pod 都删没了，deployment 副本数都设置为 0 了，还付费个毛。
 
 讲了那么多 Serverless 的好处，要在实际三流的场景大规模的落地 Serverless，是一件非常容易的事情，所有能够用钱解决的问题都不是问题：
 
-### 方案一：业务可轻可重
+### I 灵活弹性收缩
 
 要实现彻底的自动弹性，按实际使用资源付费，就意味着平台需要能够在秒级甚至毫秒级别扩容出业务实例。
 
@@ -88,21 +90,15 @@ pod 都删没了，deployment 副本数都设置为 0 了，还付费个毛。
 
 有了热启动之后，也就不存在基础设施响应能力不足的问题。
 
-### 方案二：业务进程生命周期与容器一致
+### II 业务进程生命周期与容器一致
 
-我在
-[OAM specification](https://github.com/oam-dev/spec)
-里面提了个 
-[issue](https://github.com/oam-dev/spec/issues/354)
-。
+容器本身要处理好来自外部的启动和终止信号。
 
-如果我的理解没有偏差的话，目前 OAM 是通过 
-[Traits](https://github.com/oam-dev/spec/blob/master/6.traits.md) 
-来定义应用就绪的约定条件。
+启动信号：按照合适的信号/顺序启动子业务/子进程。
 
-我很看好这个项目，希望大家也能参与进来，一起贡(B)献(B)。
+终止信号：容器本身要通过信号订阅来处理好终止信号，理想情况是“人走茶凉”——即最后的外部流量消逝之后，业务自动缩容至1/0。
 
-### 方案三：杀死运维
+### III：杀死运维
 
 以我曾经见过一位“高级运维”操作为例。
 
@@ -116,10 +112,12 @@ pod 都删没了，deployment 副本数都设置为 0 了，还付费个毛。
 
 因为我们主要的平台是阿里云，所以我们的方案是
 1. 监控用自建 Elastic Search
-[按月自动分片 Elastic Search Index](http://www.zeusro.com/2019/04/10/elasticsearch-api/#ingestpipeline-%E7%94%A8%E6%B3%95) 
+[按月自动分片 Elastic Search Index](http://www.zeusro.com/2019/04/10/elasticsearch-api/#ingestpipeline-%E7%94%A8%E6%B3%95)
 1. 第三方服务深度绑定阿里云
 1. 在阿里云花多点钱，然后疯狂吐槽阿里云
 1. 自行开发 service mesh 组件
+
+登堡垒机主要是为了审计操作日志，我希望把这个过程内化到日常准备工作中，而无需过多准备。像现在的github passkey 就是一个很好的例子。
 
 ## 小结
 
