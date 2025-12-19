@@ -54,6 +54,7 @@ Just remember:
 ## Server mode
 
 ### TODO
+
 1. [ ] kube-killer prepare
     1. [ ] prepare MYSQL
     1. [ ] prepare kube-killer server
@@ -107,18 +108,20 @@ Such as
 #### kill resource
 
 ```go
-
+TODO curl
 ```
 
 #### freeze deploy
 
 ```go
-
+TODO curl
 ```
 
 ### CLI usage
 
 Once the [kube-killer server](#Web-server-mode) is ready，you can use the CLI mode .
+
+TODO 下发一个token 供本地调用。
 
 #### kill resource
 
@@ -189,7 +192,6 @@ Finally，you are free to destroy the whole production Kubernetes cluster  remot
 kube-killer kill po
 kube-killer kill pod
 
-
 ```
 
 ## Bazinga Punk
@@ -203,11 +205,6 @@ kube-killer kill me
 **!!!WARNING!!!**:PLEASE DO NOT USE.
 
 It‘s an unpredictable command🤣.
-
-
-### severless
-
-1. [ ] kill resource with metrics data.
 
 ## One more thing
 
