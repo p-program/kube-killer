@@ -50,7 +50,7 @@ func (k *SecretKiller) BlackHand() *SecretKiller {
 
 func (k *SecretKiller) getAllSecretInCurrentNamespace() ([]*v1.Secret, error) {
 	p := pager.New(pager.SimplePageFunc(func(opts metav1.ListOptions) (runtime.Object, error) {
-		list, err := k.client.CoreV1().Secrets(namespace).List(context.TODO(), opts)
+		list, err := k.client.CoreV1().Secrets(k.namespace).List(context.TODO(), opts)
 		if err != nil {
 			return nil, errors.Wrap(err, "cannot retrieve secrets")
 		}
@@ -75,7 +75,6 @@ func (k *SecretKiller) getAllSecretInCurrentNamespace() ([]*v1.Secret, error) {
 	return secrets, nil
 }
 
-// TODO:need to test
 func (k *SecretKiller) Kill() error {
 	podKiller, err := NewPodKiller(k.namespace)
 	if err != nil {
@@ -85,16 +84,24 @@ func (k *SecretKiller) Kill() error {
 	if err != nil {
 		return err
 	}
-	log.Info().Msgf("Retrieving Secrets in %s...", namespace)
+	log.Info().Msgf("Retrieving Secrets in %s...", k.namespace)
 	secrets, err := k.getAllSecretInCurrentNamespace()
 	if err != nil {
 		return err
 	}
-	unusedSecret, err := k.detectUnusedSecrets(pods, secrets)
+	
+	// Get ServiceAccounts that use secrets
+	serviceAccounts, err := k.getAllServiceAccountsInCurrentNamespace()
+	if err != nil {
+		log.Warn().Err(err).Msg("Failed to retrieve ServiceAccounts, continuing without them")
+	}
+	
+	unusedSecret, err := k.detectUnusedSecrets(pods, secrets, serviceAccounts)
 	if err != nil {
 		return err
 	}
 	for _, secret := range unusedSecret {
+		log.Info().Msgf("Deleting unused secret %s in namespace %s", secret.Name, k.namespace)
 		err = k.client.CoreV1().Secrets(k.namespace).Delete(context.TODO(), secret.Name, k.deleteOption)
 		if err != nil {
 			log.Err(err)
@@ -103,8 +110,18 @@ func (k *SecretKiller) Kill() error {
 	return err
 }
 
-func (k *SecretKiller) detectUnusedSecrets(pods []*v1.Pod, secrets []*v1.Secret) ([]*v1.Secret, error) {
+func (k *SecretKiller) getAllServiceAccountsInCurrentNamespace() ([]v1.ServiceAccount, error) {
+	saList, err := k.client.CoreV1().ServiceAccounts(k.namespace).List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		return nil, err
+	}
+	return saList.Items, nil
+}
+
+func (k *SecretKiller) detectUnusedSecrets(pods []*v1.Pod, secrets []*v1.Secret, serviceAccounts []v1.ServiceAccount) ([]*v1.Secret, error) {
 	usedSecretNames := map[string]bool{}
+	
+	// Check secrets used by Pods
 	for _, pod := range pods {
 		for _, container := range pod.Spec.Containers {
 			for _, envFrom := range container.EnvFrom {
@@ -131,6 +148,17 @@ func (k *SecretKiller) detectUnusedSecrets(pods []*v1.Pod, secrets []*v1.Secret)
 			}
 		}
 	}
+	
+	// Check secrets used by ServiceAccounts
+	for _, sa := range serviceAccounts {
+		for _, secretRef := range sa.Secrets {
+			usedSecretNames[secretRef.Name] = true
+		}
+		for _, imagePullSecret := range sa.ImagePullSecrets {
+			usedSecretNames[imagePullSecret.Name] = true
+		}
+	}
+	
 	unused := []*v1.Secret{}
 	for _, secret := range secrets {
 		if !usedSecretNames[secret.Name] {

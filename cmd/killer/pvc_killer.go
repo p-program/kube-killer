@@ -47,7 +47,7 @@ func (k *PVCKiller) DryRun() *PVCKiller {
 	return k
 }
 
-// DeserveDead Pending/Lost PVC deserve to die
+// DeserveDead Pending/Lost PVC deserve to die, or PVC not used by any Pod
 func (k *PVCKiller) DeserveDead(resource interface{}) bool {
 	if k.mafia {
 		return true
@@ -55,23 +55,76 @@ func (k *PVCKiller) DeserveDead(resource interface{}) bool {
 	pvc := resource.(v1.PersistentVolumeClaim)
 	phase := pvc.Status.Phase
 	if phase == v1.ClaimBound {
+		// Check if it's used by any Pod
 		return false
 	}
 	return true
 }
 
-// Kill Kill
+// Kill Kill unused PVCs
 func (k *PVCKiller) Kill() error {
+	if k.mafia {
+		return k.KillAllPVCs()
+	}
+	return k.KillUnusedPVCs()
+}
+
+func (k *PVCKiller) KillAllPVCs() error {
 	list, err := k.client.CoreV1().PersistentVolumeClaims(k.namespace).List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		return err
 	}
 	for _, pvc := range list.Items {
-		if !k.DeserveDead(pvc) {
+		log.Info().Msgf("Deleting pvc %s in namespace %s", pvc.Name, k.namespace)
+		err = k.client.CoreV1().PersistentVolumeClaims(k.namespace).Delete(context.TODO(), pvc.Name, k.deleteOption)
+		if err != nil {
+			log.Err(err)
+		}
+	}
+	return nil
+}
+
+func (k *PVCKiller) KillUnusedPVCs() error {
+	// Get all PVCs
+	pvcList, err := k.client.CoreV1().PersistentVolumeClaims(k.namespace).List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		return err
+	}
+	
+	// Get all Pods to check which PVCs are in use
+	podKiller, err := NewPodKiller(k.namespace)
+	if err != nil {
+		return err
+	}
+	pods, err := podKiller.getAllPodsInCurrentNamespace()
+	if err != nil {
+		return err
+	}
+	
+	// Build map of used PVCs
+	usedPVCs := make(map[string]bool)
+	for _, pod := range pods {
+		for _, volume := range pod.Spec.Volumes {
+			if volume.PersistentVolumeClaim != nil {
+				usedPVCs[volume.PersistentVolumeClaim.ClaimName] = true
+			}
+		}
+	}
+	
+	// Delete unused PVCs
+	for _, pvc := range pvcList.Items {
+		// Skip bound PVCs that are in use
+		if pvc.Status.Phase == v1.ClaimBound && usedPVCs[pvc.Name] {
 			continue
 		}
-		log.Info().Msgf("delete pvc %s in namespace %s ", pvc.Name, pvc.Namespace)
-		k.client.CoreV1().PersistentVolumeClaims(k.namespace).Delete(context.TODO(), pvc.Name, k.deleteOption)
+		// Delete unbound or unused PVCs
+		if pvc.Status.Phase != v1.ClaimBound || !usedPVCs[pvc.Name] {
+			log.Info().Msgf("Deleting unused pvc %s in namespace %s", pvc.Name, k.namespace)
+			err = k.client.CoreV1().PersistentVolumeClaims(k.namespace).Delete(context.TODO(), pvc.Name, k.deleteOption)
+			if err != nil {
+				log.Err(err)
+			}
+		}
 	}
 	return nil
 }

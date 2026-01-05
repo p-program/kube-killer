@@ -1,14 +1,23 @@
 package killer
 
 import (
+	"bufio"
+	"fmt"
+	"os"
+	"strings"
+
+	"github.com/p-program/kube-killer/core"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
+	"k8s.io/client-go/kubernetes"
 )
 
 var (
-	resources []string
-	namespace string
-	dryRun    bool
+	resources     []string
+	namespace     string
+	allNamespaces bool
+	dryRun        bool
+	interactive   bool
 )
 
 func init() {
@@ -22,26 +31,89 @@ func NewKillCommand() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "kill",
 		Short: "Kill kubernetes's resource",
-		Long:  ``,
+		Long:  `Delete unused Kubernetes resources. Supported resources: Pods, ConfigMaps, Secrets, Services, PVs, PVCs, Jobs, etc.`,
 		Args:  cobra.MinimumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) < 1 {
 				log.Error().Msgf("%s:len(args) < 1", "kill.go")
 				return
 			}
+			if allNamespaces {
+				namespace = ""
+			}
 			SelectKiller(args)
 		}}
 	c.PersistentFlags().StringVarP(&namespace, "namespace", "n", "default", "working namespace")
+	c.PersistentFlags().BoolVarP(&allNamespaces, "all-namespaces", "A", false, "If true, delete the targeted resources across all namespaces except kube-system")
 	c.PersistentFlags().BoolVarP(&dryRun, "dryrun", "d", false, "dryRun")
+	c.PersistentFlags().BoolVarP(&interactive, "interactive", "i", false, "If true, a prompt asks whether resources can be deleted")
 	return c
+}
+
+func confirmDelete(resourceType, resourceName, namespace string) bool {
+	if !interactive {
+		return true
+	}
+	reader := bufio.NewReader(os.Stdin)
+	nsStr := namespace
+	if nsStr == "" {
+		nsStr = "all namespaces"
+	}
+	fmt.Printf("? Are you sure to delete %s/%s in namespace %s? (y/N): ", resourceType, resourceName, nsStr)
+	response, err := reader.ReadString('\n')
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to read input")
+		return false
+	}
+	response = strings.TrimSpace(strings.ToLower(response))
+	return response == "y" || response == "yes"
 }
 
 func SelectKiller(args []string) error {
 	resourceType := args[0]
+
+	// Get Kubernetes client for namespace helper
+	clientset, err := getKubernetesClient()
+	if err != nil {
+		return err
+	}
+
 	switch resourceType {
 	case "cm", "configmap":
-		break
-	case "d", "deploy":
+		if allNamespaces {
+			return processNamespaces(clientset, namespace, allNamespaces, func(ns string) error {
+				k, err := NewConfigmapKiller(ns)
+				if err != nil {
+					return err
+				}
+				if dryRun {
+					k.DryRun()
+				}
+				return k.Kill()
+			})
+		}
+		k, err := NewConfigmapKiller(namespace)
+		if err != nil {
+			return err
+		}
+		if dryRun {
+			k.DryRun()
+		}
+		return k.Kill()
+	case "d", "deploy", "deployment":
+		if allNamespaces {
+			return processNamespaces(clientset, namespace, allNamespaces, func(ns string) error {
+				k, err := NewDeploymentKiller(ns)
+				if err != nil {
+					return err
+				}
+				if dryRun {
+					k.DryRun()
+				}
+				k.Kill()
+				return nil
+			})
+		}
 		k, err := NewDeploymentKiller(namespace)
 		if err != nil {
 			return err
@@ -50,8 +122,9 @@ func SelectKiller(args []string) error {
 			k.DryRun()
 		}
 		k.Kill()
-		break
+		return nil
 	case "pv":
+		// PV is cluster-scoped, no need for namespace iteration
 		k, err := NewPVKiller()
 		if err != nil {
 			return err
@@ -59,9 +132,20 @@ func SelectKiller(args []string) error {
 		if dryRun {
 			k.DryRun()
 		}
-		k.Kill()
-		break
+		return k.Kill()
 	case "pvc":
+		if allNamespaces {
+			return processNamespaces(clientset, namespace, allNamespaces, func(ns string) error {
+				k, err := NewPVCKiller(ns)
+				if err != nil {
+					return err
+				}
+				if dryRun {
+					k.DryRun()
+				}
+				return k.Kill()
+			})
+		}
 		k, err := NewPVCKiller(namespace)
 		if err != nil {
 			return err
@@ -69,9 +153,20 @@ func SelectKiller(args []string) error {
 		if dryRun {
 			k.DryRun()
 		}
-		k.Kill()
-		break
+		return k.Kill()
 	case "p", "po", "pod":
+		if allNamespaces {
+			return processNamespaces(clientset, namespace, allNamespaces, func(ns string) error {
+				k, err := NewPodKiller(ns)
+				if err != nil {
+					return err
+				}
+				if dryRun {
+					k.DryRun()
+				}
+				return k.Kill()
+			})
+		}
 		k, err := NewPodKiller(namespace)
 		if err != nil {
 			return err
@@ -79,9 +174,20 @@ func SelectKiller(args []string) error {
 		if dryRun {
 			k.DryRun()
 		}
-		k.Kill()
-		break
+		return k.Kill()
 	case "s", "svc", "service":
+		if allNamespaces {
+			return processNamespaces(clientset, namespace, allNamespaces, func(ns string) error {
+				k, err := NewServiceKiller(ns)
+				if err != nil {
+					return err
+				}
+				if dryRun {
+					k.DryRun()
+				}
+				return k.Kill()
+			})
+		}
 		k, err := NewServiceKiller(namespace)
 		if err != nil {
 			return err
@@ -89,20 +195,97 @@ func SelectKiller(args []string) error {
 		if dryRun {
 			k.DryRun()
 		}
-		k.Kill()
-		break
+		return k.Kill()
+	case "job", "jobs":
+		if allNamespaces {
+			return processNamespaces(clientset, namespace, allNamespaces, func(ns string) error {
+				k, err := NewJobKiller(ns)
+				if err != nil {
+					return err
+				}
+				if dryRun {
+					k.DryRun()
+				}
+				return k.Kill()
+			})
+		}
+		k, err := NewJobKiller(namespace)
+		if err != nil {
+			return err
+		}
+		if dryRun {
+			k.DryRun()
+		}
+		return k.Kill()
+	case "secret", "secrets":
+		if allNamespaces {
+			return processNamespaces(clientset, namespace, allNamespaces, func(ns string) error {
+				k, err := NewSecretKiller(ns)
+				if err != nil {
+					return err
+				}
+				if dryRun {
+					k.DryRun()
+				}
+				return k.Kill()
+			})
+		}
+		k, err := NewSecretKiller(namespace)
+		if err != nil {
+			return err
+		}
+		if dryRun {
+			k.DryRun()
+		}
+		return k.Kill()
 	case "me":
-		break
+		log.Warn().Msg("!!!WARNING!!!: PLEASE DO NOT USE. It's an unpredictable command.")
+		return nil
 	case "n", "no", "node":
-		break
+		if len(args) < 2 {
+			log.Error().Msg("Node name is required")
+			return fmt.Errorf("node name is required")
+		}
+		// Node is cluster-scoped, no need for namespace iteration
+		k, err := NewNodeKiller(args[1])
+		if err != nil {
+			return err
+		}
+		if dryRun {
+			k.DryRun()
+		}
+		return k.Kill()
 	case "ns", "namespace":
-		break
+		if allNamespaces {
+			return processNamespaces(clientset, namespace, allNamespaces, func(ns string) error {
+				k, err := NewNamespaceKiller(ns)
+				if err != nil {
+					return err
+				}
+				if dryRun {
+					k.DryRun()
+				}
+				// NamespaceKiller.Kill() not implemented yet
+				return nil
+			})
+		}
+		k, err := NewNamespaceKiller(namespace)
+		if err != nil {
+			return err
+		}
+		if dryRun {
+			k.DryRun()
+		}
+		// NamespaceKiller.Kill() not implemented yet
+		return nil
 	case "satan":
-		break
-	case "secret":
-		break
-	case "":
-		break
+		log.Warn().Msg("!!!WARNING!!!: PLEASE DO NOT USE.")
+		return nil
+	default:
+		return fmt.Errorf("unsupported resource type: %s", resourceType)
 	}
-	return nil
+}
+
+func getKubernetesClient() (*kubernetes.Clientset, error) {
+	return kubernetes.NewForConfig(core.GLOBAL_KUBERNETES_CONFIG)
 }

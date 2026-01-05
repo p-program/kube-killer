@@ -99,7 +99,7 @@ func (k *PodKiller) getPods(labelMap map[string]string) (*v1.PodList, error) {
 
 func (k *PodKiller) getAllPodsInCurrentNamespace() ([]*v1.Pod, error) {
 	p := pager.New(pager.SimplePageFunc(func(opts metav1.ListOptions) (runtime.Object, error) {
-		list, err := k.client.CoreV1().Pods(namespace).List(context.TODO(), opts)
+		list, err := k.client.CoreV1().Pods(k.namespace).List(context.TODO(), opts)
 		if err != nil {
 			return nil, errors.Wrap(err, "cannot retrieve pods")
 		}

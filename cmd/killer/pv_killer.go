@@ -52,35 +52,82 @@ func (k *PVKiller) DeserveDead(resource interface{}) bool {
 		return false
 	}
 	if phase == v1.VolumeAvailable {
-		return false
+		// Available PVs are not bound, can be deleted
+		return true
 	}
 	if phase == v1.VolumeBound {
+		// Bound PVs are in use, should not be deleted
 		return false
 	}
+	// Released, Failed volumes can be deleted
 	return true
 }
 
-// Kill UnBoundPV
+// Kill UnBoundPV or PVs not satisfying any PVCs
 func (k *PVKiller) Kill() error {
+	if k.mafia {
+		return k.KillAllPVs()
+	}
+	return k.KillUnusedPVs()
+}
+
+func (k *PVKiller) KillAllPVs() error {
 	volumeList, err := k.getAllPV()
 	if err != nil {
 		return err
 	}
-	for i := 0; i < len(volumeList.Items); i++ {
-		volume := volumeList.Items[i]
-		volumeName := volume.Name
-		if !k.DeserveDead(&volume) {
-			continue
-		}
-		log.Info().Msgf("Volume Info { volumeName: %s ;volume.Status.Phase: %s }", volumeName, volume.Status.Phase)
-		err = k.deletePV(volumeName, k.dryRun)
+	for _, volume := range volumeList.Items {
+		log.Info().Msgf("Deleting PV %s (phase: %s)", volume.Name, volume.Status.Phase)
+		err = k.deletePV(volume.Name, k.dryRun)
 		if err != nil {
-			//log but continue
 			log.Warn().Err(err)
 			continue
 		}
 	}
-	return err
+	return nil
+}
+
+func (k *PVKiller) KillUnusedPVs() error {
+	volumeList, err := k.getAllPV()
+	if err != nil {
+		return err
+	}
+	
+	// Get all PVCs across all namespaces to check which PVs are in use
+	// Note: PVs are cluster-scoped, so we need to check all namespaces
+	pvcList, err := k.client.CoreV1().PersistentVolumeClaims("").List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		log.Warn().Err(err).Msg("Failed to list PVCs, will only check PV phase")
+	}
+	
+	// Build map of PVs that are bound to PVCs
+	usedPVs := make(map[string]bool)
+	for _, pvc := range pvcList.Items {
+		if pvc.Spec.VolumeName != "" {
+			usedPVs[pvc.Spec.VolumeName] = true
+		}
+	}
+	
+	for _, volume := range volumeList.Items {
+		volumeName := volume.Name
+		phase := volume.Status.Phase
+		
+		// Skip bound volumes that are in use
+		if phase == v1.VolumeBound && usedPVs[volumeName] {
+			continue
+		}
+		
+		// Delete available, released, or failed volumes
+		if phase == v1.VolumeAvailable || phase == v1.VolumeReleased || phase == v1.VolumeFailed {
+			log.Info().Msgf("Deleting unused PV %s (phase: %s)", volumeName, phase)
+			err = k.deletePV(volumeName, k.dryRun)
+			if err != nil {
+				log.Warn().Err(err)
+				continue
+			}
+		}
+	}
+	return nil
 }
 
 func (k *PVKiller) deletePV(name string, dryRun bool) error {
