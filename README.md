@@ -53,69 +53,131 @@ Just remember:
 
 ## Server mode
 
-### TODO
+kube-killer can run as a Kubernetes Operator that watches `KubeKiller` Custom Resources and automatically cleans up Kubernetes resources based on the configured mode and schedule.
 
-1. [ ] kube-killer prepare
-    1. [ ] prepare MYSQL
-    1. [ ] prepare kube-killer server
-1. [ ] crashbackoff --> freeze deploy
-1. [ ] kill me
+### Installation
+
+1. Install the CRD:
 
 ```bash
-git clone https://github.com/p-program/kube-killer.git
-make build
-cp config/config-example.yaml config/config.yaml
-
-# edit config.yaml depending on the actual situation
-vi config/config.yaml
-......
-
-./kube-killer prepare
-# It will create
-# 1. MYSQL database
-# 2. `kube-killer` web server
+kubectl apply -f deploy/operator/crd.yaml
 ```
 
-After that，you have two options: To be a demon or to be a Illidan(demon hunter).
-
-### demon mode
+2. Deploy the Operator:
 
 ```bash
-./kube-killer run -mode demon
+kubectl apply -f deploy/operator/rbac.yaml
+kubectl apply -f deploy/operator/deployment.yaml
 ```
 
-When `kube-killer` run on the demon mode,It will KILL ALL PODS AT EVERY PERIOD.
-
-Pods whoever create will be killed.
-
-It is unstoppable.
-
-### Illidan mode
+3. Verify the operator is running:
 
 ```bash
-./kube-killer run -mode Illidan
+kubectl get pods -n kube-system | grep kube-killer
 ```
 
-When `kube-killer` run on the demon mode,it will hunt all unhealthy kubernetes resources at every period.
+### Usage
 
-Such as
-1. 
-1. 
-1. 
-1. 
-1. 
+After deploying the operator, you can create `KubeKiller` resources to control the cleanup behavior.
 
-#### kill resource
+#### Demon Mode
 
-```go
-TODO curl
+Demon mode will **KILL ALL PODS** at every interval. It is unstoppable and will kill any pod that gets created.
+
+```yaml
+apiVersion: kubekiller.p-program.github.io/v1alpha1
+kind: KubeKiller
+metadata:
+  name: kube-killer-demon
+  namespace: default
+spec:
+  mode: demon
+  interval: "5m"
+  dryRun: false
 ```
 
-#### freeze deploy
+Apply it:
 
-```go
-TODO curl
+```bash
+kubectl apply -f - <<EOF
+apiVersion: kubekiller.p-program.github.io/v1alpha1
+kind: KubeKiller
+metadata:
+  name: kube-killer-demon
+  namespace: default
+spec:
+  mode: demon
+  interval: "5m"
+  dryRun: false
+EOF
 ```
+
+**⚠️ WARNING**: Demon mode will kill ALL pods in all namespaces (except kube-system) at the specified interval. Use with extreme caution!
+
+#### Illidan Mode
+
+Illidan mode hunts unhealthy Kubernetes resources at every period. It will clean up:
+- Completed/Failed pods
+- Completed jobs
+- Unused PVCs and PVs
+- Services without pods
+- Unused ConfigMaps and Secrets
+
+```yaml
+apiVersion: kubekiller.p-program.github.io/v1alpha1
+kind: KubeKiller
+metadata:
+  name: kube-killer-illidan
+  namespace: default
+spec:
+  mode: illidan
+  interval: "10m"
+  dryRun: false
+  resources:
+    - pod
+    - job
+    - pvc
+    - pv
+    - service
+    - configmap
+    - secret
+  excludeNamespaces:
+    - kube-system
+    - kube-public
+    - kube-node-lease
+```
+
+Apply it:
+
+```bash
+kubectl apply -f deploy/operator/example.yaml
+```
+
+### Configuration Options
+
+The `KubeKiller` CRD supports the following configuration:
+
+- **mode**: Operation mode - `demon` (kills all pods) or `illidan` (hunts unhealthy resources)
+- **interval**: How often the killer should run (e.g., "5m", "1h", "30s")
+- **namespaces**: Specific namespaces to operate on (empty means all except kube-system)
+- **excludeNamespaces**: Namespaces to exclude from operations
+- **dryRun**: If true, only log what would be deleted without actually deleting
+- **resources**: Resource types to kill (only used in illidan mode): pod, job, pvc, pv, service, configmap, secret
+
+### Monitoring
+
+Check the status of your KubeKiller resources:
+
+```bash
+kubectl get kubekiller
+kubectl describe kubekiller kube-killer-illidan
+```
+
+The status will show:
+- `lastRunTime`: When the killer last ran
+- `lastRunResult`: Result of the last run
+- `resourcesKilled`: Number of resources killed
+- `phase`: Current phase (Ready, Running, Error)
 
 ### CLI usage
 

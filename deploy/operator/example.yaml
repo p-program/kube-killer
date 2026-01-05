@@ -1,0 +1,31 @@
+apiVersion: kubekiller.p-program.github.io/v1alpha1
+kind: KubeKiller
+metadata:
+  name: kube-killer-demon
+  namespace: default
+spec:
+  mode: demon
+  interval: "5m"
+  dryRun: false
+---
+apiVersion: kubekiller.p-program.github.io/v1alpha1
+kind: KubeKiller
+metadata:
+  name: kube-killer-illidan
+  namespace: default
+spec:
+  mode: illidan
+  interval: "10m"
+  dryRun: false
+  resources:
+    - pod
+    - job
+    - pvc
+    - service
+    - configmap
+    - secret
+  excludeNamespaces:
+    - kube-system
+    - kube-public
+    - kube-node-lease
+

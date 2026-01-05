@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/p-program/kube-killer/cmd/killer"
+	"github.com/p-program/kube-killer/cmd/server"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -42,6 +43,7 @@ func init() {
 func bindCommand() {
 	rootCmd.AddCommand(NewVersionCommand())
 	rootCmd.AddCommand(NewFreezeCommand())
+	rootCmd.AddCommand(server.NewServerCommand())
 	kill := killer.NewKillCommand()
 	rootCmd.AddCommand(kill)
 	kill.AddCommand()

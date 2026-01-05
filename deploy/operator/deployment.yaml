@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kube-killer-operator
+  namespace: kube-system
+  labels:
+    app: kube-killer-operator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kube-killer-operator
+  template:
+    metadata:
+      labels:
+        app: kube-killer-operator
+    spec:
+      serviceAccountName: kube-killer-operator
+      containers:
+      - name: manager
+        image: kube-killer:latest
+        args:
+        - server
+        - run
+        imagePullPolicy: IfNotPresent
+        resources:
+          limits:
+            cpu: 500m
+            memory: 512Mi
+          requests:
+            cpu: 100m
+            memory: 128Mi
+        env:
+        - name: WATCH_NAMESPACE
+          value: ""
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: OPERATOR_NAME
+          value: "kube-killer-operator"
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8081
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: 8081
+          initialDelaySeconds: 5
+          periodSeconds: 10
+
