@@ -7,8 +7,8 @@ import (
 
 	"github.com/rs/zerolog/log"
 
-	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/mysql"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 	"github.com/p-program/kube-killer/config"
 )
 
@@ -35,7 +35,12 @@ func NewMysqlPreparation(config *config.MysqlConfig) *MysqlPreparation {
 
 func (p *MysqlPreparation) Prepare() {
 	db := p.getDBWithoutClose()
-	defer db.Close()
+	if db != nil {
+		sqlDB, _ := db.DB()
+		if sqlDB != nil {
+			defer sqlDB.Close()
+		}
+	}
 	config := p.config
 	err := p.CreateDb(db, config.Db)
 	if err != nil {
@@ -55,8 +60,13 @@ func (p *MysqlPreparation) CleanUp() {
 	sql := fmt.Sprintf("truncate table `%s`", dbName)
 	log.Warn().Msgf("sql: %s", sql)
 	db := p.getDBWithoutClose()
-	defer db.Close()
-	db.Exec(sql)
+	if db != nil {
+		sqlDB, _ := db.DB()
+		if sqlDB != nil {
+			defer sqlDB.Close()
+		}
+		db.Exec(sql)
+	}
 }
 
 // CreateTable params are optional
@@ -106,7 +116,7 @@ func (p *MysqlPreparation) CreateDb(db *gorm.DB, dbName string) error {
 func (m *MysqlPreparation) getDBWithoutClose() *gorm.DB {
 	mysqlConfig := m.config
 	mysqlConnectionString := fmt.Sprintf(MYSQL_TEMPLATE, mysqlConfig.User, mysqlConfig.Pwd, mysqlConfig.Host, mysqlConfig.Db)
-	db, err := gorm.Open("mysql", mysqlConnectionString)
+	db, err := gorm.Open(mysql.Open(mysqlConnectionString), &gorm.Config{})
 	if err != nil {
 		log.Err(err)
 		return nil
