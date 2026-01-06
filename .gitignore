@@ -23,3 +23,4 @@
 # project
 config.yaml
 operator/cmd/manager/kube-killer
+kubectl-kill

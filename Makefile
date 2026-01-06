@@ -14,6 +14,9 @@ auto_commit:
 build:
 	GOARCH=$(ARCH) CGO_ENABLED=0 go build
 
+build-kubectl-plugin:
+	GOARCH=$(ARCH) CGO_ENABLED=0 go build -o kubectl-kill ./cmd/kubectl-kill
+
 buildAndRun: build run
 
 fix-dep:
@@ -57,3 +60,15 @@ update-dep: update-mod fix-dep
 update-mod:
 	go get -u -v github.com/p-program/go-common-library
 	# go-mod-upgrade
+
+# Install kubectl-kill plugin to ~/bin or /usr/local/bin
+# Usage: make install-kubectl-plugin [PREFIX=/usr/local]
+install-kubectl-plugin: build-kubectl-plugin
+	@if [ -z "$(PREFIX)" ]; then \
+		PREFIX=$$HOME/bin; \
+	fi; \
+	mkdir -p $$PREFIX; \
+	cp kubectl-kill $$PREFIX/; \
+	chmod +x $$PREFIX/kubectl-kill; \
+	echo "kubectl-kill plugin installed to $$PREFIX/kubectl-kill"; \
+	echo "Make sure $$PREFIX is in your PATH"

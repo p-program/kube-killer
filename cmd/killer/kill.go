@@ -289,3 +289,33 @@ func SelectKiller(args []string) error {
 func getKubernetesClient() (*kubernetes.Clientset, error) {
 	return kubernetes.NewForConfig(core.GLOBAL_KUBERNETES_CONFIG)
 }
+
+// ExecuteKill executes the kill operation with the given parameters
+// This function is designed for use by kubectl plugins and other external callers
+func ExecuteKill(resourceType, ns string, allNs, dry, interactiveMode bool) error {
+	// Set package-level variables temporarily
+	oldNamespace := namespace
+	oldAllNamespaces := allNamespaces
+	oldDryRun := dryRun
+	oldInteractive := interactive
+
+	namespace = ns
+	allNamespaces = allNs
+	dryRun = dry
+	interactive = interactiveMode
+
+	if allNamespaces {
+		namespace = ""
+	}
+
+	// Execute the kill operation
+	err := SelectKiller([]string{resourceType})
+
+	// Restore old values (though they may not be needed if this is the only caller)
+	namespace = oldNamespace
+	allNamespaces = oldAllNamespaces
+	dryRun = oldDryRun
+	interactive = oldInteractive
+
+	return err
+}

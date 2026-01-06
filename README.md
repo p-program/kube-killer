@@ -21,8 +21,6 @@ custom metrics or custom condition.
 
 It is a humane killer, he could also freeze the deploy without killing it (scale to 0）.
 
-It is very lightweight and easy to use, you don't need to install any CRD.
-
 You could run as web server, binary and CLI mode.
 
 ## Architecture
@@ -183,8 +181,6 @@ The status will show:
 
 Once the [kube-killer server](#Web-server-mode) is ready，you can use the CLI mode .
 
-TODO 下发一个token 供本地调用。
-
 #### kill resource
 
 ```bash
@@ -225,30 +221,56 @@ Finally，you are free to destroy the whole production Kubernetes cluster  remot
 
 ## Serverless mode
 
-1. [ ] freeze resource = kubectl scale --replicas=0 statefulset/web
+1. [ ] kill node gracefully
+1. [ ] kill satan
 1. [x] kill completed/failed pod automatically
 1. [x] kill unused PV
 1. [x] kill unused PVC
 1. [x] kill service without pod
-1. [ ] kill node gracefully
-1. [ ] kill satan
-1. [ ] kill stucking namespace
-1. [ ] kill unused configmap
+1. [x] kill unused configmap
 1. [x] kill unused secret
-1. [ ] output event
-1. [ ] custom metrics condition support
+1. [x] kill completed jobs
+1. [x] 支持 all-namespaces 标志
+1. [x] 支持 interactive 模式
+1. [x] 支持 dry-run 模式
+
+### kubectl Plugin
+
+kube-killer can be used as a kubectl plugin! Install it and use `kubectl kill` to delete unused Kubernetes resources.
+
+**Installation:**
 
 ```bash
+# Build and install the plugin
+# 构建插件
+make build-kubectl-plugin
+# 安装插件
+make install-kubectl-plugin
+
+# Or install to a custom location
+make install-kubectl-plugin PREFIX=/usr/local/bin
 
 ```
 
-### Binary usage
+**Usage:**
 
 ```bash
+# Delete unused pods
+kubectl kill pod
 
+# Delete unused pods in all namespaces
+kubectl kill pod -A
+
+# Dry run to see what would be deleted
+kubectl kill pod -d
+
+# Delete unused services
+kubectl kill service -n default
 ```
 
-### CLI usage
+For more details, see the [kubectl plugin documentation](docs/KUBECTL_PLUGIN.md).
+
+### Binary CLI usage
 
 ```bash
 kube-killer kill po

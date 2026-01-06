@@ -1,7 +1,7 @@
 package config
 
 import (
-	"io/ioutil"
+	"os"
 
 	"github.com/p-program/go-common-library/text"
 	"gopkg.in/yaml.v2"
@@ -21,7 +21,7 @@ func NewProjectConfig() *ProjectConfig {
 
 // LoadYAML LoadYAML from file
 func (config *ProjectConfig) LoadYAML(path string) error {
-	content, err := ioutil.ReadFile(path)
+	content, err := os.ReadFile(path)
 	contentWithoutComment := []byte(text.RemoveYAMLcomment(string(content)))
 	if err != nil {
 		return err
