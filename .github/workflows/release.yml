@@ -1,0 +1,198 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'  # 当推送以 v 开头的 tag 时触发
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  build:
+    name: Build for ${{ matrix.os }}/${{ matrix.arch }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Linux
+          - os: ubuntu-latest
+            arch: amd64
+            goarch: amd64
+            goos: linux
+          - os: ubuntu-latest
+            arch: arm64
+            goarch: arm64
+            goos: linux
+          # macOS
+          - os: macos-latest
+            arch: amd64
+            goarch: amd64
+            goos: darwin
+          - os: macos-latest
+            arch: arm64
+            goarch: arm64
+            goos: darwin
+          # Windows
+          - os: windows-latest
+            arch: amd64
+            goarch: amd64
+            goos: windows
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.25'
+
+      - name: Get version from tag
+        id: get_version
+        run: |
+          if [ "${{ github.ref_type }}" == "tag" ]; then
+            VERSION=${GITHUB_REF#refs/tags/}
+          else
+            VERSION="dev-$(git rev-parse --short HEAD)"
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Version: $VERSION"
+
+      - name: Build kube-killer
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+          CGO_ENABLED: 0
+        shell: bash
+        run: |
+          OUTPUT="kube-killer"
+          if [ "${{ matrix.goos }}" == "windows" ]; then
+            OUTPUT="kube-killer.exe"
+          fi
+          go build -ldflags="-s -w -X github.com/p-program/kube-killer/cmd.VERSION=${{ steps.get_version.outputs.version }}" -o $OUTPUT .
+          mkdir -p dist
+          mv $OUTPUT dist/
+
+      - name: Build kubectl-kill plugin
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+          CGO_ENABLED: 0
+        shell: bash
+        run: |
+          OUTPUT="kubectl-kill"
+          if [ "${{ matrix.goos }}" == "windows" ]; then
+            OUTPUT="kubectl-kill.exe"
+          fi
+          go build -ldflags="-s -w -X github.com/p-program/kube-killer/cmd.VERSION=${{ steps.get_version.outputs.version }}" -o $OUTPUT ./cmd/kubectl-kill
+          mkdir -p dist
+          mv $OUTPUT dist/
+
+      - name: Create archive (Linux/macOS)
+        if: matrix.goos != 'windows'
+        shell: bash
+        run: |
+          cd dist
+          ARCHIVE_NAME="kube-killer-${{ steps.get_version.outputs.version }}-${{ matrix.goos }}-${{ matrix.arch }}"
+          tar czf "${ARCHIVE_NAME}.tar.gz" *
+          cd ..
+          mv "dist/${ARCHIVE_NAME}.tar.gz" dist/
+
+      - name: Create archive (Windows)
+        if: matrix.goos == 'windows'
+        shell: pwsh
+        run: |
+          $version = "${{ steps.get_version.outputs.version }}"
+          $archiveName = "kube-killer-$version-windows-${{ matrix.arch }}.zip"
+          Compress-Archive -Path dist\* -DestinationPath "dist\$archiveName" -Force
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: kube-killer-${{ matrix.goos }}-${{ matrix.arch }}
+          path: |
+            dist/kube-killer-${{ steps.get_version.outputs.version }}-${{ matrix.goos }}-${{ matrix.arch }}.*
+          retention-days: 30
+
+  release:
+    name: Create Release
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref_type == 'tag'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Get version from tag
+        id: get_version
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/}
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Version: $VERSION"
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Prepare release assets
+        run: |
+          mkdir -p release-assets
+          find artifacts -type f \( -name "*.tar.gz" -o -name "*.zip" \) -exec cp {} release-assets/ \;
+          ls -lh release-assets/
+
+      - name: Generate checksums
+        run: |
+          cd release-assets
+          sha256sum *.tar.gz *.zip > checksums.txt 2>/dev/null || true
+          cd ..
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: release-assets/*
+          name: Release ${{ steps.get_version.outputs.version }}
+          body: |
+            ## kube-killer ${{ steps.get_version.outputs.version }}
+
+            ### Downloads
+
+            #### kube-killer (Main Binary)
+            - **Linux amd64**: `kube-killer-${{ steps.get_version.outputs.version }}-linux-amd64.tar.gz`
+            - **Linux arm64**: `kube-killer-${{ steps.get_version.outputs.version }}-linux-arm64.tar.gz`
+            - **macOS amd64**: `kube-killer-${{ steps.get_version.outputs.version }}-darwin-amd64.tar.gz`
+            - **macOS arm64**: `kube-killer-${{ steps.get_version.outputs.version }}-darwin-arm64.tar.gz`
+            - **Windows amd64**: `kube-killer-${{ steps.get_version.outputs.version }}-windows-amd64.zip`
+
+            #### kubectl-kill (Plugin)
+            All archives include both `kube-killer` and `kubectl-kill` binaries.
+
+            ### Installation
+
+            **Linux/macOS:**
+            ```bash
+            # Download and extract
+            tar -xzf kube-killer-${{ steps.get_version.outputs.version }}-linux-amd64.tar.gz
+            # Install kube-killer
+            sudo mv kube-killer /usr/local/bin/
+            # Install kubectl plugin
+            mkdir -p ~/.local/bin
+            mv kubectl-kill ~/.local/bin/
+            export PATH=$PATH:~/.local/bin
+            ```
+
+            **Windows:**
+            ```powershell
+            # Extract the zip file
+            Expand-Archive kube-killer-${{ steps.get_version.outputs.version }}-windows-amd64.zip
+            # Add to PATH or move to desired location
+            ```
+
+            ### Verify Checksums
+            See `checksums.txt` for SHA256 checksums of all release files.
+          draft: false
+          prerelease: ${{ contains(steps.get_version.outputs.version, '-') }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
