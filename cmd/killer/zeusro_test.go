@@ -4,11 +4,13 @@ import (
 	"fmt"
 	"sync"
 	"testing"
+
+	"github.com/p-program/kube-killer/config"
 )
 
 func prepareZeusro() *Zeusro {
-	// TODO
-	return nil
+	projectConfig := config.NewProjectConfig()
+	return NewZeusro(projectConfig, false)
 }
 
 func TestCoin(t *testing.T) {

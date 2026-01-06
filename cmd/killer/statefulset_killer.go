@@ -1,7 +1,10 @@
 package killer
 
 import (
+	"context"
+
 	"github.com/p-program/kube-killer/core"
+	"github.com/rs/zerolog/log"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 )
@@ -43,7 +46,24 @@ func (k *StatefulSetKiller) BlackHand() *StatefulSetKiller {
 }
 
 func (k *StatefulSetKiller) Kill() error {
-	// statefulsets,err :=k.client.CoreV1().
-	//TODO
+	if k.mafia {
+		return k.KillAllStatefulSets()
+	}
+	return k.KillAllStatefulSets()
+}
+
+func (k *StatefulSetKiller) KillAllStatefulSets() error {
+	log.Warn().Msg("KillAllStatefulSets")
+	statefulSets, err := k.client.AppsV1().StatefulSets(k.namespace).List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		return err
+	}
+	for _, sts := range statefulSets.Items {
+		log.Warn().Msgf("deleting statefulset %s in namespace %s", sts.Name, k.namespace)
+		err = k.client.AppsV1().StatefulSets(k.namespace).Delete(context.TODO(), sts.Name, k.deleteOption)
+		if err != nil {
+			log.Error().Err(err)
+		}
+	}
 	return nil
 }

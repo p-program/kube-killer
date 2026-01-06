@@ -92,14 +92,14 @@ func (k *PVKiller) KillUnusedPVs() error {
 	if err != nil {
 		return err
 	}
-	
+
 	// Get all PVCs across all namespaces to check which PVs are in use
 	// Note: PVs are cluster-scoped, so we need to check all namespaces
 	pvcList, err := k.client.CoreV1().PersistentVolumeClaims("").List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		log.Warn().Err(err).Msg("Failed to list PVCs, will only check PV phase")
 	}
-	
+
 	// Build map of PVs that are bound to PVCs
 	usedPVs := make(map[string]bool)
 	for _, pvc := range pvcList.Items {
@@ -107,16 +107,16 @@ func (k *PVKiller) KillUnusedPVs() error {
 			usedPVs[pvc.Spec.VolumeName] = true
 		}
 	}
-	
+
 	for _, volume := range volumeList.Items {
 		volumeName := volume.Name
 		phase := volume.Status.Phase
-		
+
 		// Skip bound volumes that are in use
 		if phase == v1.VolumeBound && usedPVs[volumeName] {
 			continue
 		}
-		
+
 		// Delete available, released, or failed volumes
 		if phase == v1.VolumeAvailable || phase == v1.VolumeReleased || phase == v1.VolumeFailed {
 			log.Info().Msgf("Deleting unused PV %s (phase: %s)", volumeName, phase)

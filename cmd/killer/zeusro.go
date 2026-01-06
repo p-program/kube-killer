@@ -11,8 +11,9 @@ import (
 // Coin live or dead ?
 func (z *Zeusro) Coin() bool {
 	//prevent same result
-	rand.Seed(time.Now().UnixNano())
-	v := rand.Intn(2)
+	// Use rand.New() instead of deprecated rand.Seed() (Go 1.20+)
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	v := r.Intn(2)
 	return v == 1
 }
 
@@ -78,9 +79,17 @@ func (z *Zeusro) callSheldon() {
 }
 
 func (z *Zeusro) callMyWife() {
-	//TODO
+	fmt.Println("Penny: What? What happened?")
+	time.Sleep(time.Second)
+	fmt.Println("Penny: Oh my god, are you okay?")
+	time.Sleep(time.Second)
+	fmt.Println("Penny: I'm coming over right now!")
 }
 
 func (z *Zeusro) callThanos() {
-	//TODO
+	fmt.Println("Thanos: I am inevitable.")
+	time.Sleep(time.Second * 2)
+	fmt.Println("Thanos: *snaps fingers*")
+	time.Sleep(time.Second)
+	fmt.Println("Thanos: The universe will be balanced.")
 }

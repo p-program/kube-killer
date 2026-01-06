@@ -123,7 +123,30 @@ func (k *PodKiller) getAllPodsInCurrentNamespace() ([]*v1.Pod, error) {
 }
 
 func (k *PodKiller) KillHalfPods() error {
-	//TODO
+	log.Warn().Msg("KillHalfPods")
+	pods, err := k.getPods(nil)
+	if err != nil {
+		return err
+	}
+	if len(pods.Items) == 0 {
+		log.Info().Msg("No pods to kill")
+		return nil
+	}
+	// Calculate how many pods to kill (half, rounded down)
+	podsToKill := len(pods.Items) / 2
+	if podsToKill == 0 {
+		podsToKill = 1 // At least kill one pod if there's only one
+	}
+	log.Info().Msgf("Killing %d out of %d pods", podsToKill, len(pods.Items))
+	for i := 0; i < podsToKill; i++ {
+		pod := pods.Items[i]
+		podName := pod.Name
+		log.Warn().Msgf("delete pod %s in namespace %s", podName, pod.Namespace)
+		err = k.client.CoreV1().Pods(pod.Namespace).Delete(context.TODO(), podName, k.deleteOption)
+		if err != nil {
+			log.Error().Err(err)
+		}
+	}
 	return nil
 }
 
