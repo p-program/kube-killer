@@ -1,0 +1,3 @@
+@docs/Cloud-Native-Development-Best-Practices.zh.md  根据这个文档提供的反面教材，给kube-killer 增加一个 scan 命令，根据不同的kubernetes版本扫描一下集群可能存在的问题。
+把已完成的功能写到 cmd/scanner  这个目录中的一个md文件中
+

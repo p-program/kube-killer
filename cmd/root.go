@@ -44,6 +44,7 @@ func bindCommand() {
 	rootCmd.AddCommand(NewVersionCommand())
 	rootCmd.AddCommand(NewFreezeCommand())
 	rootCmd.AddCommand(server.NewServerCommand())
+	rootCmd.AddCommand(NewScanCommand())
 	kill := killer.NewKillCommand()
 	rootCmd.AddCommand(kill)
 	kill.AddCommand()
