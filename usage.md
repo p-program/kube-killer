@@ -54,6 +54,8 @@ kube-killer [command] [resource-type] [flags]
 | Deployment | `d`, `deploy`, `deployment` | 删除 Deployment（功能待完善） |
 | Node | `n`, `no`, `node` | 优雅地删除 Node（需要指定节点名） |
 | Namespace | `ns`, `namespace` | 删除 Namespace（功能待完善） |
+| CustomResource | `cr`, `customresource` | 根据 group 模式删除 Custom Resource（需要指定 group 模式） |
+| CustomResourceDefinition | `crd`, `customresourcedefinition` | 根据 group 模式删除 CustomResourceDefinition（需要指定 group 模式） |
 
 ### freeze 命令支持
 
@@ -105,6 +107,26 @@ kube-killer kill <resource-type> [flags]
 8. **Node** (`node`, `no`, `n`)
    - 需要指定节点名称作为第二个参数
    - 先执行 `kubectl cordon`，然后可以执行 `kubectl drain`（功能待完善）
+
+9. **CustomResource** (`cr`, `customresource`)
+   - 根据 group 模式删除 Custom Resource
+   - 需要指定 group 模式作为第二个参数（例如：`example.com` 或 `*.example.com`）
+   - 支持通配符匹配：
+     - `*.example.com` - 匹配所有以 `.example.com` 结尾的 group
+     - `example.com` - 精确匹配
+     - `example.*` - 匹配所有以 `example.` 开头的 group
+   - 自动识别 cluster-scoped 和 namespace-scoped 的 CR
+   - 自动发现匹配的 CRD 并删除对应的所有 CR
+
+10. **CustomResourceDefinition** (`crd`, `customresourcedefinition`)
+    - 根据 group 模式删除 CustomResourceDefinition
+    - 需要指定 group 模式作为第二个参数（例如：`example.com` 或 `*.example.com`）
+    - 支持通配符匹配：
+      - `*.example.com` - 匹配所有以 `.example.com` 结尾的 group
+      - `example.com` - 精确匹配
+      - `example.*` - 匹配所有以 `example.` 开头的 group
+    - CRD 是集群级别的资源，不需要指定命名空间
+    - ⚠️ **警告：删除 CRD 会同时删除该 CRD 定义的所有 CR 实例**
 
 ### freeze 命令
 
@@ -210,6 +232,47 @@ kube-killer kill pvc -n default
 kube-killer kill node worker-node-1
 ```
 
+### 删除 Custom Resource
+
+```bash
+# 删除指定 group 下的所有 CR（精确匹配）
+kube-killer kill cr example.com
+
+# 删除所有匹配通配符 group 的 CR（支持通配符）
+kube-killer kill cr *.example.com
+
+# 在指定命名空间中删除 CR
+kube-killer kill cr example.com -n production
+
+# 在所有命名空间中删除匹配的 CR（排除 kube-system）
+kube-killer kill cr *.example.com --all-namespaces
+
+# 使用 dry-run 模式查看将要删除的 CR
+kube-killer kill cr example.com --dryrun
+
+# 删除所有以 example. 开头的 group 下的 CR
+kube-killer kill cr example.*
+```
+
+### 删除 CustomResourceDefinition
+
+```bash
+# 删除指定 group 下的所有 CRD（精确匹配）
+kube-killer kill crd example.com
+
+# 删除所有匹配通配符 group 的 CRD（支持通配符）
+kube-killer kill crd *.example.com
+
+# 使用 dry-run 模式查看将要删除的 CRD
+kube-killer kill crd example.com --dryrun
+
+# 删除所有以 example. 开头的 group 下的 CRD
+kube-killer kill crd example.*
+
+# CRD 是集群级别的，不需要指定命名空间
+kube-killer kill crd *.example.com
+```
+
 ### Freeze 命令示例
 
 ```bash
@@ -257,6 +320,8 @@ kube-killer kill job -A -i
    - Service: 只删除没有匹配 Pod 的 Service
    - PV/PVC: 只删除未绑定或未使用的资源
    - Job: 只删除已完成或失败的 Job
+   - CustomResource: 根据 group 模式匹配并删除所有对应的 CR（包括 cluster-scoped 和 namespace-scoped）
+   - CustomResourceDefinition: 根据 group 模式匹配并删除所有对应的 CRD（⚠️ 删除 CRD 会同时删除该 CRD 定义的所有 CR 实例）
 
 5. **特殊命令**
    - `kube-killer kill me` - ⚠️ **危险命令，请勿使用**
@@ -288,6 +353,29 @@ kube-killer kill job -A -i
    ```bash
    # 定期清理已完成的 Job
    kube-killer kill job -n default
+   ```
+
+4. **清理 Custom Resource：**
+   ```bash
+   # 清理特定 group 下的所有 CR（建议先使用 dry-run）
+   kube-killer kill cr example.com --dryrun
+   kube-killer kill cr example.com
+   
+   # 清理所有匹配通配符的 CR
+   kube-killer kill cr *.example.com --all-namespaces --dryrun
+   ```
+
+5. **清理 CustomResourceDefinition：**
+   ```bash
+   # ⚠️ 警告：删除 CRD 会同时删除该 CRD 定义的所有 CR 实例
+   # 建议先使用 dry-run 查看将要删除的 CRD
+   kube-killer kill crd example.com --dryrun
+   
+   # 确认无误后再执行实际删除
+   kube-killer kill crd example.com
+   
+   # 清理所有匹配通配符的 CRD
+   kube-killer kill crd *.example.com --dryrun
    ```
 
 ### 限制和已知问题

@@ -281,6 +281,40 @@ func SelectKiller(args []string) error {
 	case "satan":
 		log.Warn().Msg("!!!WARNING!!!: PLEASE DO NOT USE.")
 		return nil
+	case "cr", "customresource":
+		if len(args) < 2 {
+			log.Error().Msg("Group pattern is required for CR deletion (e.g., '*.example.com' or 'example.com')")
+			return fmt.Errorf("group pattern is required for CR deletion")
+		}
+		groupPattern := args[1]
+		// CRKiller handles all namespaces internally when namespace is empty
+		targetNamespace := namespace
+		if allNamespaces {
+			targetNamespace = ""
+		}
+		k, err := NewCRKiller(groupPattern, targetNamespace)
+		if err != nil {
+			return err
+		}
+		if dryRun {
+			k.DryRun()
+		}
+		return k.Kill()
+	case "crd", "customresourcedefinition":
+		if len(args) < 2 {
+			log.Error().Msg("Group pattern is required for CRD deletion (e.g., '*.example.com' or 'example.com')")
+			return fmt.Errorf("group pattern is required for CRD deletion")
+		}
+		groupPattern := args[1]
+		// CRD is cluster-scoped, no need for namespace
+		k, err := NewCRDKiller(groupPattern)
+		if err != nil {
+			return err
+		}
+		if dryRun {
+			k.DryRun()
+		}
+		return k.Kill()
 	default:
 		return fmt.Errorf("unsupported resource type: %s", resourceType)
 	}
