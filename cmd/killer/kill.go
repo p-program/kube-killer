@@ -375,8 +375,19 @@ func SelectKiller(args []string) error {
 		}
 		return k.Kill()
 	case "satan":
-		log.Warn().Msg("!!!WARNING!!!: PLEASE DO NOT USE.")
-		return nil
+		log.Warn().Msg("!!!WARNING!!!: SATAN mode - This will delete ALL excess/unused Kubernetes resources!")
+		targetNamespace := namespace
+		if allNamespaces {
+			targetNamespace = ""
+		}
+		k, err := NewSatanKiller(targetNamespace, allNamespaces)
+		if err != nil {
+			return err
+		}
+		if dryRun {
+			k.DryRun()
+		}
+		return k.Kill()
 	case "cr", "customresource":
 		if len(args) < 2 {
 			log.Error().Msg("Group pattern is required for CR deletion (e.g., '*.example.com' or 'example.com')")
