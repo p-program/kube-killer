@@ -347,8 +347,10 @@ func SelectKiller(args []string) error {
 				if dryRun {
 					k.DryRun()
 				}
-				// NamespaceKiller.Kill() not implemented yet
-				return nil
+				if mafia {
+					k.BlackHand().Force()
+				}
+				return k.Kill()
 			})
 		}
 		k, err := NewNamespaceKiller(namespace)
@@ -358,8 +360,10 @@ func SelectKiller(args []string) error {
 		if dryRun {
 			k.DryRun()
 		}
-		// NamespaceKiller.Kill() not implemented yet
-		return nil
+		if mafia {
+			k.BlackHand().Force()
+		}
+		return k.Kill()
 	case "satan":
 		log.Warn().Msg("!!!WARNING!!!: PLEASE DO NOT USE.")
 		return nil

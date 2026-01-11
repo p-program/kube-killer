@@ -7,6 +7,7 @@ import (
 )
 
 func TestKillUnBoundPVC(t *testing.T) {
+	skipIfNoCluster(t)
 	k, err := NewPVCKiller("")
 	assert.Nil(t, err)
 	k.DryRun()

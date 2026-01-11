@@ -6,29 +6,29 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestPodKillerKill(t *testing.T) {
+func TestJobKillerKill(t *testing.T) {
 	skipIfNoCluster(t)
-	k, err := NewPodKiller("")
+	k, err := NewJobKiller("")
 	assert.Nil(t, err)
 	k.DryRun()
 	err = k.Kill()
 	assert.Nil(t, err)
 }
 
-func TestPodKillerKillAll(t *testing.T) {
+func TestJobKillerKillAll(t *testing.T) {
 	skipIfNoCluster(t)
-	k, err := NewPodKiller("")
+	k, err := NewJobKiller("")
 	assert.Nil(t, err)
 	k.DryRun().BlackHand()
 	err = k.Kill()
 	assert.Nil(t, err)
 }
 
-func TestKillAllPods(t *testing.T) {
+func TestJobKillerKillHalf(t *testing.T) {
 	skipIfNoCluster(t)
-	k, err := NewPodKiller("")
+	k, err := NewJobKiller("")
 	assert.Nil(t, err)
-	k.DryRun()
-	err = k.KillAllPods()
+	k.DryRun().BlackHand().SetHalf()
+	err = k.Kill()
 	assert.Nil(t, err)
 }

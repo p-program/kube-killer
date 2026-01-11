@@ -7,6 +7,7 @@ import (
 )
 
 func TestServiceKiller(t *testing.T) {
+	skipIfNoCluster(t)
 	k, err := NewServiceKiller("")
 	assert.Nil(t, err)
 	k.DryRun()

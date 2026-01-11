@@ -7,6 +7,7 @@ import (
 )
 
 func TestPVKillerKill(t *testing.T) {
+	skipIfNoCluster(t)
 	p, err := NewPVKiller()
 	assert.Nil(t, err)
 	err = p.Kill()
