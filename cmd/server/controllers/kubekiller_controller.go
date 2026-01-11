@@ -42,28 +42,55 @@ func (r *KubeKillerReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 
-	// Parse interval
-	interval, err := time.ParseDuration(kk.Spec.Interval)
-	if err != nil {
-		// Default to 5 minutes if parsing fails
-		interval = 5 * time.Minute
-		log.Warn().Err(err).Msgf("Failed to parse interval, using default 5m")
-	}
+	// Check if scheduleAt is set (specific time point execution)
+	if kk.Spec.ScheduleAt != nil {
+		now := time.Now()
+		scheduleTime := kk.Spec.ScheduleAt.Time
 
-	// Check if we should run now
-	shouldRun := true
-	if kk.Status.LastRunTime != nil {
-		timeSinceLastRun := time.Since(kk.Status.LastRunTime.Time)
-		if timeSinceLastRun < interval {
-			shouldRun = false
-			// Requeue after the remaining time
-			requeueAfter := interval - timeSinceLastRun
+		// Check if task has already been executed
+		if kk.Status.LastRunTime != nil {
+			lastRunTime := kk.Status.LastRunTime.Time
+			// If last run time is at or after the scheduled time, task has been executed
+			if !lastRunTime.Before(scheduleTime) {
+				log.Info().Msgf("Scheduled task at %s has already been executed at %s, skipping",
+					scheduleTime.Format(time.RFC3339), lastRunTime.Format(time.RFC3339))
+				return ctrl.Result{}, nil
+			}
+		}
+
+		// If the scheduled time hasn't arrived yet, requeue
+		if now.Before(scheduleTime) {
+			requeueAfter := scheduleTime.Sub(now)
+			log.Info().Msgf("Scheduled task will run at %s, requeuing in %v", scheduleTime.Format(time.RFC3339), requeueAfter)
 			return ctrl.Result{RequeueAfter: requeueAfter}, nil
 		}
-	}
 
-	if !shouldRun {
-		return ctrl.Result{RequeueAfter: interval}, nil
+		// Scheduled time has arrived, execute the task
+		log.Info().Msgf("Scheduled time %s has arrived, executing task", scheduleTime.Format(time.RFC3339))
+	} else {
+		// Use interval-based execution (original behavior)
+		interval, err := time.ParseDuration(kk.Spec.Interval)
+		if err != nil {
+			// Default to 5 minutes if parsing fails
+			interval = 5 * time.Minute
+			log.Warn().Err(err).Msgf("Failed to parse interval, using default 5m")
+		}
+
+		// Check if we should run now
+		shouldRun := true
+		if kk.Status.LastRunTime != nil {
+			timeSinceLastRun := time.Since(kk.Status.LastRunTime.Time)
+			if timeSinceLastRun < interval {
+				shouldRun = false
+				// Requeue after the remaining time
+				requeueAfter := interval - timeSinceLastRun
+				return ctrl.Result{RequeueAfter: requeueAfter}, nil
+			}
+		}
+
+		if !shouldRun {
+			return ctrl.Result{RequeueAfter: interval}, nil
+		}
 	}
 
 	// Update status to Running
@@ -100,7 +127,17 @@ func (r *KubeKillerReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 		return ctrl.Result{}, err
 	}
 
-	// Requeue after interval
+	// If scheduleAt was set and task has been executed, don't requeue
+	if kk.Spec.ScheduleAt != nil {
+		log.Info().Msg("Scheduled task completed, not requeuing")
+		return ctrl.Result{}, err2
+	}
+
+	// Requeue after interval for interval-based execution
+	interval, _ := time.ParseDuration(kk.Spec.Interval)
+	if interval == 0 {
+		interval = 5 * time.Minute
+	}
 	return ctrl.Result{RequeueAfter: interval}, err2
 }
 

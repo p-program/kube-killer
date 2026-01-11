@@ -28,4 +28,58 @@ spec:
     - kube-system
     - kube-public
     - kube-node-lease
+---
+# Example: Specific namespace deletion
+apiVersion: kubekiller.p-program.github.io/v1alpha1
+kind: KubeKiller
+metadata:
+  name: kube-killer-specific-namespace
+  namespace: default
+spec:
+  mode: illidan
+  interval: "15m"
+  dryRun: false
+  # Only operate on specific namespaces
+  namespaces:
+    - production
+    - staging
+    - development
+  resources:
+    - pod
+    - job
+    - configmap
+    - secret
+---
+# Example: Scheduled execution at specific time point
+apiVersion: kubekiller.p-program.github.io/v1alpha1
+kind: KubeKiller
+metadata:
+  name: kube-killer-scheduled
+  namespace: default
+spec:
+  mode: illidan
+  # scheduleAt takes precedence over interval
+  # Task will execute only once at the specified time (RFC3339 format)
+  scheduleAt: "2026-01-15T10:30:00Z"
+  dryRun: false
+  namespaces:
+    - production
+  resources:
+    - pod
+    - job
+---
+# Example: Scheduled execution with specific namespaces
+apiVersion: kubekiller.p-program.github.io/v1alpha1
+kind: KubeKiller
+metadata:
+  name: kube-killer-scheduled-namespace
+  namespace: default
+spec:
+  mode: demon
+  # Execute at specific time point in specific namespaces
+  scheduleAt: "2026-01-20T02:00:00Z"
+  dryRun: false
+  namespaces:
+    - test
+    - dev
 

@@ -126,8 +126,13 @@ func SelectKiller(args []string) error {
 				if dryRun {
 					k.DryRun()
 				}
-				k.Kill()
-				return nil
+				if mafia {
+					k.BlackHand()
+					if half {
+						k.SetHalf()
+					}
+				}
+				return k.Kill()
 			})
 		}
 		k, err := NewDeploymentKiller(namespace)
@@ -137,8 +142,13 @@ func SelectKiller(args []string) error {
 		if dryRun {
 			k.DryRun()
 		}
-		k.Kill()
-		return nil
+		if mafia {
+			k.BlackHand()
+			if half {
+				k.SetHalf()
+			}
+		}
+		return k.Kill()
 	case "pv":
 		// PV is cluster-scoped, no need for namespace iteration
 		k, err := NewPVKiller()

@@ -25,7 +25,11 @@ spec:
               interval:
                 type: string
                 default: "5m"
-                description: How often the killer should run (e.g., "5m", "1h")
+                description: How often the killer should run (e.g., "5m", "1h"). Ignored if scheduleAt is set.
+              scheduleAt:
+                type: string
+                format: date-time
+                description: Specific time to execute the deletion task (RFC3339 format, e.g., "2026-01-15T10:30:00Z"). If set, interval will be ignored and task will run only once at the specified time.
               namespaces:
                 type: array
                 items:

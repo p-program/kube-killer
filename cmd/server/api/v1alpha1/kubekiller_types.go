@@ -15,6 +15,11 @@ type KubeKillerSpec struct {
 	// +kubebuilder:default="5m"
 	Interval string `json:"interval,omitempty"`
 
+	// ScheduleAt defines a specific time to execute the deletion task (RFC3339 format)
+	// If set, interval will be ignored and task will run only once at the specified time
+	// +optional
+	ScheduleAt *metav1.Time `json:"scheduleAt,omitempty"`
+
 	// Namespaces to operate on. Empty means all namespaces except kube-system
 	// +optional
 	Namespaces []string `json:"namespaces,omitempty"`
