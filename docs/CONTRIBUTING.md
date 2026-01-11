@@ -1,18 +1,14 @@
-# How to Contribute
+# How to Contribute 如何贡献
 
-We'd love to accept your patches and contributions to this project. There are
-just a few small guidelines you need to follow.
+There are just a few small guidelines you need to follow.
+遵守以下准则。
 
-## Contributor License Agreement
+## Code guidelines 代码规范
 
-Contributions to this project must be accompanied by a Contributor License
-Agreement. You (or your employer) retain the copyright to your contribution;
-this simply gives us permission to use and redistribute your contributions as
-part of the project. 
+All guidelines are bullshit.
+任意所至。
 
-## Code reviews
+## Code review 代码审阅
 
-All submissions, including submissions by project members, require review. We
-use GitHub pull requests for this purpose. Consult
-[GitHub Help](https://help.github.com/articles/about-pull-requests/) for more
-information on using pull requests.
+After completing each feature, ensure that unit tests pass.
+每一个功能完成后，要确保单元测试通过。

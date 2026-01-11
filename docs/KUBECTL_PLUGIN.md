@@ -155,3 +155,4 @@ kubectl kill configmap -n default -d
 两者功能相同，只是调用方式不同。
 
 
+
