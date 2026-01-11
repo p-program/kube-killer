@@ -2,7 +2,9 @@ package killer
 
 import (
 	"context"
+	"math/rand"
 	"strings"
+	"time"
 
 	"github.com/p-program/kube-killer/core"
 	"github.com/rs/zerolog/log"
@@ -17,6 +19,7 @@ type ServiceKiller struct {
 	deleteOption metav1.DeleteOptions
 	dryRun       bool
 	mafia        bool
+	half         bool
 	namespace    string
 }
 
@@ -47,10 +50,21 @@ func (k *ServiceKiller) BlackHand() *ServiceKiller {
 	return k
 }
 
+func (k *ServiceKiller) SetHalf() *ServiceKiller {
+	k.half = true
+	return k
+}
+
 func (k *ServiceKiller) Kill() error {
 	services, err := k.client.CoreV1().Services(k.namespace).List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		return err
+	}
+	if k.mafia {
+		if k.half {
+			return k.KillHalfServices(services)
+		}
+		return k.KillAllServices(services)
 	}
 	for i := 0; i < len(services.Items); i++ {
 		service := services.Items[i]
@@ -59,6 +73,48 @@ func (k *ServiceKiller) Kill() error {
 		}
 		log.Warn().Msgf("deleting service %s in namespace %s", service.Name, service.Namespace)
 		err = k.client.CoreV1().Services(service.Namespace).Delete(context.TODO(), service.Name, k.deleteOption)
+		if err != nil {
+			log.Error().Err(err)
+		}
+	}
+	return nil
+}
+
+func (k *ServiceKiller) KillAllServices(services *v1.ServiceList) error {
+	for _, service := range services.Items {
+		log.Warn().Msgf("deleting service %s in namespace %s", service.Name, service.Namespace)
+		err := k.client.CoreV1().Services(service.Namespace).Delete(context.TODO(), service.Name, k.deleteOption)
+		if err != nil {
+			log.Error().Err(err)
+		}
+	}
+	return nil
+}
+
+func (k *ServiceKiller) KillHalfServices(services *v1.ServiceList) error {
+	if len(services.Items) == 0 {
+		log.Info().Msg("No services to kill")
+		return nil
+	}
+	
+	// Randomly shuffle the services list
+	serviceList := services.Items
+	rand.Seed(time.Now().UnixNano())
+	rand.Shuffle(len(serviceList), func(i, j int) {
+		serviceList[i], serviceList[j] = serviceList[j], serviceList[i]
+	})
+	
+	// Calculate how many services to kill (half, rounded down)
+	servicesToKill := len(serviceList) / 2
+	if servicesToKill == 0 {
+		servicesToKill = 1 // At least kill one service if there's only one
+	}
+	
+	log.Info().Msgf("Killing %d out of %d services", servicesToKill, len(serviceList))
+	for i := 0; i < servicesToKill; i++ {
+		service := serviceList[i]
+		log.Warn().Msgf("deleting service %s in namespace %s", service.Name, service.Namespace)
+		err := k.client.CoreV1().Services(service.Namespace).Delete(context.TODO(), service.Name, k.deleteOption)
 		if err != nil {
 			log.Error().Err(err)
 		}

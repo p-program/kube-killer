@@ -18,6 +18,8 @@ var (
 	allNamespaces bool
 	dryRun        bool
 	interactive   bool
+	mafia         bool
+	half          bool
 )
 
 func init() {
@@ -47,6 +49,8 @@ func NewKillCommand() *cobra.Command {
 	c.PersistentFlags().BoolVarP(&allNamespaces, "all-namespaces", "A", false, "If true, delete the targeted resources across all namespaces except kube-system")
 	c.PersistentFlags().BoolVarP(&dryRun, "dryrun", "d", false, "dryRun")
 	c.PersistentFlags().BoolVarP(&interactive, "interactive", "i", false, "If true, a prompt asks whether resources can be deleted")
+	c.PersistentFlags().BoolVar(&mafia, "mafia", false, "If true, kill all resources (mafia mode)")
+	c.PersistentFlags().BoolVar(&half, "half", false, "If true and mafia=true, randomly delete half of the resources")
 	return c
 }
 
@@ -89,6 +93,12 @@ func SelectKiller(args []string) error {
 				if dryRun {
 					k.DryRun()
 				}
+				if mafia {
+					k.BlackHand()
+					if half {
+						k.SetHalf()
+					}
+				}
 				return k.Kill()
 			})
 		}
@@ -98,6 +108,12 @@ func SelectKiller(args []string) error {
 		}
 		if dryRun {
 			k.DryRun()
+		}
+		if mafia {
+			k.BlackHand()
+			if half {
+				k.SetHalf()
+			}
 		}
 		return k.Kill()
 	case "d", "deploy", "deployment":
@@ -132,6 +148,12 @@ func SelectKiller(args []string) error {
 		if dryRun {
 			k.DryRun()
 		}
+		if mafia {
+			k.BlackHand()
+			if half {
+				k.SetHalf()
+			}
+		}
 		return k.Kill()
 	case "pvc":
 		if allNamespaces {
@@ -143,6 +165,12 @@ func SelectKiller(args []string) error {
 				if dryRun {
 					k.DryRun()
 				}
+				if mafia {
+					k.BlackHand()
+					if half {
+						k.SetHalf()
+					}
+				}
 				return k.Kill()
 			})
 		}
@@ -152,6 +180,12 @@ func SelectKiller(args []string) error {
 		}
 		if dryRun {
 			k.DryRun()
+		}
+		if mafia {
+			k.BlackHand()
+			if half {
+				k.SetHalf()
+			}
 		}
 		return k.Kill()
 	case "p", "po", "pod":
@@ -164,6 +198,12 @@ func SelectKiller(args []string) error {
 				if dryRun {
 					k.DryRun()
 				}
+				if mafia {
+					k.BlackHand()
+					if half {
+						k.SetHalf()
+					}
+				}
 				return k.Kill()
 			})
 		}
@@ -173,6 +213,12 @@ func SelectKiller(args []string) error {
 		}
 		if dryRun {
 			k.DryRun()
+		}
+		if mafia {
+			k.BlackHand()
+			if half {
+				k.SetHalf()
+			}
 		}
 		return k.Kill()
 	case "s", "svc", "service":
@@ -185,6 +231,12 @@ func SelectKiller(args []string) error {
 				if dryRun {
 					k.DryRun()
 				}
+				if mafia {
+					k.BlackHand()
+					if half {
+						k.SetHalf()
+					}
+				}
 				return k.Kill()
 			})
 		}
@@ -194,6 +246,12 @@ func SelectKiller(args []string) error {
 		}
 		if dryRun {
 			k.DryRun()
+		}
+		if mafia {
+			k.BlackHand()
+			if half {
+				k.SetHalf()
+			}
 		}
 		return k.Kill()
 	case "job", "jobs":
@@ -206,6 +264,12 @@ func SelectKiller(args []string) error {
 				if dryRun {
 					k.DryRun()
 				}
+				if mafia {
+					k.BlackHand()
+					if half {
+						k.SetHalf()
+					}
+				}
 				return k.Kill()
 			})
 		}
@@ -215,6 +279,12 @@ func SelectKiller(args []string) error {
 		}
 		if dryRun {
 			k.DryRun()
+		}
+		if mafia {
+			k.BlackHand()
+			if half {
+				k.SetHalf()
+			}
 		}
 		return k.Kill()
 	case "secret", "secrets":
@@ -227,6 +297,12 @@ func SelectKiller(args []string) error {
 				if dryRun {
 					k.DryRun()
 				}
+				if mafia {
+					k.BlackHand()
+					if half {
+						k.SetHalf()
+					}
+				}
 				return k.Kill()
 			})
 		}
@@ -236,6 +312,12 @@ func SelectKiller(args []string) error {
 		}
 		if dryRun {
 			k.DryRun()
+		}
+		if mafia {
+			k.BlackHand()
+			if half {
+				k.SetHalf()
+			}
 		}
 		return k.Kill()
 	case "me":

@@ -2,6 +2,8 @@ package killer
 
 import (
 	"context"
+	"math/rand"
+	"time"
 
 	"github.com/p-program/kube-killer/core"
 	"github.com/pkg/errors"
@@ -18,6 +20,7 @@ type SecretKiller struct {
 	deleteOption metav1.DeleteOptions
 	dryRun       bool
 	mafia        bool
+	half         bool
 	namespace    string
 }
 
@@ -45,6 +48,11 @@ func (k *SecretKiller) DryRun() *SecretKiller {
 
 func (k *SecretKiller) BlackHand() *SecretKiller {
 	k.mafia = true
+	return k
+}
+
+func (k *SecretKiller) SetHalf() *SecretKiller {
+	k.half = true
 	return k
 }
 
@@ -76,16 +84,23 @@ func (k *SecretKiller) getAllSecretInCurrentNamespace() ([]*v1.Secret, error) {
 }
 
 func (k *SecretKiller) Kill() error {
+	secrets, err := k.getAllSecretInCurrentNamespace()
+	if err != nil {
+		return err
+	}
+	
+	if k.mafia {
+		if k.half {
+			return k.KillHalfSecrets(secrets)
+		}
+		return k.KillAllSecrets(secrets)
+	}
+	
 	podKiller, err := NewPodKiller(k.namespace)
 	if err != nil {
 		return err
 	}
 	pods, err := podKiller.getAllPodsInCurrentNamespace()
-	if err != nil {
-		return err
-	}
-	log.Info().Msgf("Retrieving Secrets in %s...", k.namespace)
-	secrets, err := k.getAllSecretInCurrentNamespace()
 	if err != nil {
 		return err
 	}
@@ -108,6 +123,49 @@ func (k *SecretKiller) Kill() error {
 		}
 	}
 	return err
+}
+
+func (k *SecretKiller) KillAllSecrets(secrets []*v1.Secret) error {
+	for _, secret := range secrets {
+		log.Info().Msgf("Deleting secret %s in namespace %s", secret.Name, k.namespace)
+		err := k.client.CoreV1().Secrets(k.namespace).Delete(context.TODO(), secret.Name, k.deleteOption)
+		if err != nil {
+			log.Err(err)
+		}
+	}
+	return nil
+}
+
+func (k *SecretKiller) KillHalfSecrets(secrets []*v1.Secret) error {
+	if len(secrets) == 0 {
+		log.Info().Msg("No secrets to kill")
+		return nil
+	}
+	
+	// Randomly shuffle the secrets list
+	secretList := make([]*v1.Secret, len(secrets))
+	copy(secretList, secrets)
+	rand.Seed(time.Now().UnixNano())
+	rand.Shuffle(len(secretList), func(i, j int) {
+		secretList[i], secretList[j] = secretList[j], secretList[i]
+	})
+	
+	// Calculate how many secrets to kill (half, rounded down)
+	secretsToKill := len(secretList) / 2
+	if secretsToKill == 0 {
+		secretsToKill = 1 // At least kill one secret if there's only one
+	}
+	
+	log.Info().Msgf("Killing %d out of %d secrets", secretsToKill, len(secretList))
+	for i := 0; i < secretsToKill; i++ {
+		secret := secretList[i]
+		log.Info().Msgf("Deleting secret %s in namespace %s", secret.Name, k.namespace)
+		err := k.client.CoreV1().Secrets(k.namespace).Delete(context.TODO(), secret.Name, k.deleteOption)
+		if err != nil {
+			log.Err(err)
+		}
+	}
+	return nil
 }
 
 func (k *SecretKiller) getAllServiceAccountsInCurrentNamespace() ([]v1.ServiceAccount, error) {

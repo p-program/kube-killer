@@ -2,6 +2,8 @@ package killer
 
 import (
 	"context"
+	"math/rand"
+	"time"
 
 	"github.com/p-program/kube-killer/core"
 	"github.com/pkg/errors"
@@ -20,6 +22,7 @@ type PodKiller struct {
 	deleteOption metav1.DeleteOptions
 	dryRun       bool
 	mafia        bool
+	half         bool
 	namespace    string
 }
 
@@ -47,6 +50,11 @@ func (k *PodKiller) BlackHand() *PodKiller {
 	return k
 }
 
+func (k *PodKiller) SetHalf() *PodKiller {
+	k.half = true
+	return k
+}
+
 func (k *PodKiller) DryRun() *PodKiller {
 	k.dryRun = true
 	k.deleteOption.DryRun = []string{"All"}
@@ -63,6 +71,9 @@ func (k *PodKiller) DeserveDead(resource interface{}) bool {
 
 func (k *PodKiller) Kill() error {
 	if k.mafia {
+		if k.half {
+			return k.KillHalfPods()
+		}
 		return k.KillAllPods()
 	}
 	return k.KillNonRunningPods()
@@ -132,14 +143,22 @@ func (k *PodKiller) KillHalfPods() error {
 		log.Info().Msg("No pods to kill")
 		return nil
 	}
+	
+	// Randomly shuffle the pods list
+	podList := pods.Items
+	rand.Seed(time.Now().UnixNano())
+	rand.Shuffle(len(podList), func(i, j int) {
+		podList[i], podList[j] = podList[j], podList[i]
+	})
+	
 	// Calculate how many pods to kill (half, rounded down)
-	podsToKill := len(pods.Items) / 2
+	podsToKill := len(podList) / 2
 	if podsToKill == 0 {
 		podsToKill = 1 // At least kill one pod if there's only one
 	}
-	log.Info().Msgf("Killing %d out of %d pods", podsToKill, len(pods.Items))
+	log.Info().Msgf("Killing %d out of %d pods", podsToKill, len(podList))
 	for i := 0; i < podsToKill; i++ {
-		pod := pods.Items[i]
+		pod := podList[i]
 		podName := pod.Name
 		log.Warn().Msgf("delete pod %s in namespace %s", podName, pod.Namespace)
 		err = k.client.CoreV1().Pods(pod.Namespace).Delete(context.TODO(), podName, k.deleteOption)

@@ -2,6 +2,8 @@ package killer
 
 import (
 	"context"
+	"math/rand"
+	"time"
 
 	"github.com/p-program/kube-killer/core"
 	"github.com/rs/zerolog/log"
@@ -15,6 +17,7 @@ type PVCKiller struct {
 	deleteOption metav1.DeleteOptions
 	dryRun       bool
 	mafia        bool
+	half         bool
 	namespace    string
 }
 
@@ -41,6 +44,11 @@ func (k *PVCKiller) BlackHand() *PVCKiller {
 	return k
 }
 
+func (k *PVCKiller) SetHalf() *PVCKiller {
+	k.half = true
+	return k
+}
+
 func (k *PVCKiller) DryRun() *PVCKiller {
 	k.dryRun = true
 	k.deleteOption.DryRun = []string{"All"}
@@ -64,6 +72,9 @@ func (k *PVCKiller) DeserveDead(resource interface{}) bool {
 // Kill Kill unused PVCs
 func (k *PVCKiller) Kill() error {
 	if k.mafia {
+		if k.half {
+			return k.KillHalfPVCs()
+		}
 		return k.KillAllPVCs()
 	}
 	return k.KillUnusedPVCs()
@@ -75,6 +86,41 @@ func (k *PVCKiller) KillAllPVCs() error {
 		return err
 	}
 	for _, pvc := range list.Items {
+		log.Info().Msgf("Deleting pvc %s in namespace %s", pvc.Name, k.namespace)
+		err = k.client.CoreV1().PersistentVolumeClaims(k.namespace).Delete(context.TODO(), pvc.Name, k.deleteOption)
+		if err != nil {
+			log.Err(err)
+		}
+	}
+	return nil
+}
+
+func (k *PVCKiller) KillHalfPVCs() error {
+	list, err := k.client.CoreV1().PersistentVolumeClaims(k.namespace).List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		return err
+	}
+	if len(list.Items) == 0 {
+		log.Info().Msg("No PVCs to kill")
+		return nil
+	}
+	
+	// Randomly shuffle the PVCs list
+	pvcList := list.Items
+	rand.Seed(time.Now().UnixNano())
+	rand.Shuffle(len(pvcList), func(i, j int) {
+		pvcList[i], pvcList[j] = pvcList[j], pvcList[i]
+	})
+	
+	// Calculate how many PVCs to kill (half, rounded down)
+	pvcsToKill := len(pvcList) / 2
+	if pvcsToKill == 0 {
+		pvcsToKill = 1 // At least kill one PVC if there's only one
+	}
+	
+	log.Info().Msgf("Killing %d out of %d PVCs", pvcsToKill, len(pvcList))
+	for i := 0; i < pvcsToKill; i++ {
+		pvc := pvcList[i]
 		log.Info().Msgf("Deleting pvc %s in namespace %s", pvc.Name, k.namespace)
 		err = k.client.CoreV1().PersistentVolumeClaims(k.namespace).Delete(context.TODO(), pvc.Name, k.deleteOption)
 		if err != nil {

@@ -2,6 +2,8 @@ package killer
 
 import (
 	"context"
+	"math/rand"
+	"time"
 
 	"github.com/p-program/kube-killer/core"
 	"github.com/rs/zerolog/log"
@@ -15,6 +17,7 @@ type JobKiller struct {
 	deleteOption metav1.DeleteOptions
 	dryRun       bool
 	mafia        bool
+	half         bool
 	namespace    string
 }
 
@@ -45,8 +48,16 @@ func (k *JobKiller) BlackHand() *JobKiller {
 	return k
 }
 
+func (k *JobKiller) SetHalf() *JobKiller {
+	k.half = true
+	return k
+}
+
 func (k *JobKiller) Kill() error {
 	if k.mafia {
+		if k.half {
+			return k.KillHalfJobs()
+		}
 		return k.KillAllJobs()
 	}
 	return k.KillCompletedJobs()
@@ -58,6 +69,41 @@ func (k *JobKiller) KillAllJobs() error {
 		return err
 	}
 	for _, job := range jobs.Items {
+		log.Info().Msgf("Deleting job %s in namespace %s", job.Name, k.namespace)
+		err = k.client.BatchV1().Jobs(k.namespace).Delete(context.TODO(), job.Name, k.deleteOption)
+		if err != nil {
+			log.Err(err)
+		}
+	}
+	return nil
+}
+
+func (k *JobKiller) KillHalfJobs() error {
+	jobs, err := k.client.BatchV1().Jobs(k.namespace).List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		return err
+	}
+	if len(jobs.Items) == 0 {
+		log.Info().Msg("No jobs to kill")
+		return nil
+	}
+	
+	// Randomly shuffle the jobs list
+	jobList := jobs.Items
+	rand.Seed(time.Now().UnixNano())
+	rand.Shuffle(len(jobList), func(i, j int) {
+		jobList[i], jobList[j] = jobList[j], jobList[i]
+	})
+	
+	// Calculate how many jobs to kill (half, rounded down)
+	jobsToKill := len(jobList) / 2
+	if jobsToKill == 0 {
+		jobsToKill = 1 // At least kill one job if there's only one
+	}
+	
+	log.Info().Msgf("Killing %d out of %d jobs", jobsToKill, len(jobList))
+	for i := 0; i < jobsToKill; i++ {
+		job := jobList[i]
 		log.Info().Msgf("Deleting job %s in namespace %s", job.Name, k.namespace)
 		err = k.client.BatchV1().Jobs(k.namespace).Delete(context.TODO(), job.Name, k.deleteOption)
 		if err != nil {

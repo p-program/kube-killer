@@ -2,6 +2,8 @@ package killer
 
 import (
 	"context"
+	"math/rand"
+	"time"
 
 	"github.com/p-program/kube-killer/core"
 	"github.com/rs/zerolog/log"
@@ -15,6 +17,7 @@ type PVKiller struct {
 	deleteOption metav1.DeleteOptions
 	dryRun       bool
 	mafia        bool
+	half         bool
 }
 
 func NewPVKiller() (*PVKiller, error) {
@@ -32,6 +35,11 @@ func NewPVKiller() (*PVKiller, error) {
 
 func (k *PVKiller) BlackHand() *PVKiller {
 	k.mafia = true
+	return k
+}
+
+func (k *PVKiller) SetHalf() *PVKiller {
+	k.half = true
 	return k
 }
 
@@ -66,6 +74,9 @@ func (k *PVKiller) DeserveDead(resource interface{}) bool {
 // Kill UnBoundPV or PVs not satisfying any PVCs
 func (k *PVKiller) Kill() error {
 	if k.mafia {
+		if k.half {
+			return k.KillHalfPVs()
+		}
 		return k.KillAllPVs()
 	}
 	return k.KillUnusedPVs()
@@ -77,6 +88,42 @@ func (k *PVKiller) KillAllPVs() error {
 		return err
 	}
 	for _, volume := range volumeList.Items {
+		log.Info().Msgf("Deleting PV %s (phase: %s)", volume.Name, volume.Status.Phase)
+		err = k.deletePV(volume.Name, k.dryRun)
+		if err != nil {
+			log.Warn().Err(err)
+			continue
+		}
+	}
+	return nil
+}
+
+func (k *PVKiller) KillHalfPVs() error {
+	volumeList, err := k.getAllPV()
+	if err != nil {
+		return err
+	}
+	if len(volumeList.Items) == 0 {
+		log.Info().Msg("No PVs to kill")
+		return nil
+	}
+	
+	// Randomly shuffle the PVs list
+	pvList := volumeList.Items
+	rand.Seed(time.Now().UnixNano())
+	rand.Shuffle(len(pvList), func(i, j int) {
+		pvList[i], pvList[j] = pvList[j], pvList[i]
+	})
+	
+	// Calculate how many PVs to kill (half, rounded down)
+	pvsToKill := len(pvList) / 2
+	if pvsToKill == 0 {
+		pvsToKill = 1 // At least kill one PV if there's only one
+	}
+	
+	log.Info().Msgf("Killing %d out of %d PVs", pvsToKill, len(pvList))
+	for i := 0; i < pvsToKill; i++ {
+		volume := pvList[i]
 		log.Info().Msgf("Deleting PV %s (phase: %s)", volume.Name, volume.Status.Phase)
 		err = k.deletePV(volume.Name, k.dryRun)
 		if err != nil {

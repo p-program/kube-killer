@@ -2,6 +2,8 @@ package killer
 
 import (
 	"context"
+	"math/rand"
+	"time"
 
 	"github.com/p-program/kube-killer/core"
 	"github.com/pkg/errors"
@@ -18,6 +20,7 @@ type ConfigmapKiller struct {
 	deleteOption metav1.DeleteOptions
 	dryRun       bool
 	mafia        bool
+	half         bool
 	namespace    string
 }
 
@@ -48,8 +51,16 @@ func (k *ConfigmapKiller) BlackHand() *ConfigmapKiller {
 	return k
 }
 
+func (k *ConfigmapKiller) SetHalf() *ConfigmapKiller {
+	k.half = true
+	return k
+}
+
 func (k *ConfigmapKiller) Kill() error {
 	if k.mafia {
+		if k.half {
+			return k.KillHalfConfigMaps()
+		}
 		return k.KillAllConfigMaps()
 	}
 	return k.KillUnusedConfigMaps()
@@ -61,6 +72,42 @@ func (k *ConfigmapKiller) KillAllConfigMaps() error {
 		return err
 	}
 	for _, cm := range configMaps {
+		log.Info().Msgf("Deleting configmap %s in namespace %s", cm.Name, k.namespace)
+		err = k.client.CoreV1().ConfigMaps(k.namespace).Delete(context.TODO(), cm.Name, k.deleteOption)
+		if err != nil {
+			log.Err(err)
+		}
+	}
+	return nil
+}
+
+func (k *ConfigmapKiller) KillHalfConfigMaps() error {
+	configMaps, err := k.getAllConfigMapsInCurrentNamespace()
+	if err != nil {
+		return err
+	}
+	if len(configMaps) == 0 {
+		log.Info().Msg("No configmaps to kill")
+		return nil
+	}
+	
+	// Randomly shuffle the configmaps list
+	cmList := make([]*v1.ConfigMap, len(configMaps))
+	copy(cmList, configMaps)
+	rand.Seed(time.Now().UnixNano())
+	rand.Shuffle(len(cmList), func(i, j int) {
+		cmList[i], cmList[j] = cmList[j], cmList[i]
+	})
+	
+	// Calculate how many configmaps to kill (half, rounded down)
+	cmsToKill := len(cmList) / 2
+	if cmsToKill == 0 {
+		cmsToKill = 1 // At least kill one configmap if there's only one
+	}
+	
+	log.Info().Msgf("Killing %d out of %d configmaps", cmsToKill, len(cmList))
+	for i := 0; i < cmsToKill; i++ {
+		cm := cmList[i]
 		log.Info().Msgf("Deleting configmap %s in namespace %s", cm.Name, k.namespace)
 		err = k.client.CoreV1().ConfigMaps(k.namespace).Delete(context.TODO(), cm.Name, k.deleteOption)
 		if err != nil {
