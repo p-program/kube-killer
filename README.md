@@ -32,22 +32,26 @@ First of all,please make sure that:
 1. You are the master of the MYSQL . `root` is the best! And you should make sure that the MYSQL database is reachable for the remote Kubernetes cluster.
 1. You are the administrator of the Kubernetes cluster. Admin of the “kube-system” will be the best！
 
-## Positive usage
+## Positive Usage
 
 You can create a scalable test environment by deleting those unused Kubernetes resources.
 
-`kube-killer` is another implement of `serverless`.
+`kube-killer` is another implementation of `serverless` - automatically cleaning up unused resources to keep your cluster lean and efficient.
 
 ## Malicious usage
 
-You can DELETE THE KEY RESOURCE SNEAKILY if your boss have no plan to raise your salary.
+## Malicious Usage
+
+You can DELETE KEY RESOURCES SNEAKILY if your boss has no plan to raise your salary.
 
 ![image](/docs/img/rm.gif)
 
-Please do not use it for bad . (🤣~~I bet you will~~)
+Please do not use it for bad purposes. (🤣~~I bet you will~~)
 
 Just remember:
 `Easy to hurt, hard to forgive, just make FUN.`
+
+**⚠️ WARNING:** Always use `--dry-run` mode first to preview what will be deleted. Use `--interactive` mode for additional safety. The `--mafia` flag will delete ALL resources regardless of their state - use with extreme caution!
 
 ## Server mode
 
@@ -181,25 +185,98 @@ The status will show:
 
 Once the [kube-killer server](#Web-server-mode) is ready，you can use the CLI mode .
 
-#### kill resource
+#### Supported Resource Types
+
+kube-killer supports killing the following Kubernetes resources:
+
+- **Pod** (`pod`, `po`, `p`) - Deletes completed/failed pods or all pods (in mafia mode)
+- **ConfigMap** (`configmap`, `cm`) - Deletes unused ConfigMaps
+- **Secret** (`secret`, `secrets`) - Deletes unused Secrets
+- **Service** (`service`, `svc`, `s`) - Deletes services without pods
+- **PVC** (`pvc`) - Deletes unbound or unused PersistentVolumeClaims
+- **PV** (`pv`) - Deletes unused PersistentVolumes (cluster-scoped)
+- **Job** (`job`, `jobs`) - Deletes completed/failed jobs
+- **Node** (`node`, `n`, `no`) - Cordon and drain a node (requires node name)
+- **Namespace** (`namespace`, `ns`) - Deletes a namespace and all its resources
+- **StatefulSet** (`statefulset`, `sts`) - Deletes StatefulSets
+- **Deployment** (`deployment`, `deploy`, `d`) - Deletes deployments
+- **CustomResource** (`cr`, `customresource`) - Deletes Custom Resources by group pattern (e.g., `*.example.com`)
+- **CustomResourceDefinition** (`crd`, `customresourcedefinition`) - Deletes CRDs by group pattern
+
+#### Kill Resources
 
 ```bash
-# delete "my-wife" deployment after 10 mins
-kube-killer kill deploy my-wife -a 10m
-kube-killer kill deployment my-wife -a 10m
+# Delete unused pods in default namespace
+kube-killer kill pod
 
+# Delete unused pods in all namespaces (except kube-system)
+kube-killer kill pod -A
 
-# delete deployment by label
-kube-killer kill deploy -l age=two-hundred
-kube-killer kill deployment -l age=two-hundred
+# Delete unused pods with dry-run mode (preview only)
+kube-killer kill pod -d
 
-# delete deployment by namespace and labels
-kube-killer kill deploy -l age=two-hundred -n default
-kube-killer kill deployment -l age=two-hundred -n default
+# Delete unused pods with interactive confirmation
+kube-killer kill pod -i
 
+# Delete all pods (mafia mode)
+kube-killer kill pod --mafia
+
+# Delete half of the pods randomly (mafia + half mode)
+kube-killer kill pod --mafia --half
+
+# Delete unused ConfigMaps
+kube-killer kill configmap -n default
+
+# Delete unused Secrets
+kube-killer kill secret -A
+
+# Delete unused Services
+kube-killer kill service -n default
+
+# Delete unused PVCs
+kube-killer kill pvc -A
+
+# Delete unused PVs (cluster-scoped, no namespace needed)
+kube-killer kill pv
+
+# Delete completed/failed Jobs
+kube-killer kill job -n default
+
+# Delete a StatefulSet
+kube-killer kill statefulset my-sts -n default
+
+# Delete a Deployment
+kube-killer kill deployment my-app -n default
+
+# Cordon and drain a node
+kube-killer kill node my-node-name
+
+# Delete a namespace (and all its resources)
+kube-killer kill namespace my-namespace
+
+# Delete a namespace forcefully (removes finalizers if stuck)
+kube-killer kill namespace my-namespace --mafia
+
+# Delete Custom Resources by group pattern
+kube-killer kill cr "*.example.com" -n default
+
+# Delete Custom Resources in all namespaces
+kube-killer kill cr "*.example.com" -A
+
+# Delete CustomResourceDefinitions by group pattern
+kube-killer kill crd "*.example.com"
 ```
 
-#### freeze deploy
+#### Command Flags
+
+- `-n, --namespace`: Target namespace (default: "default")
+- `-A, --all-namespaces`: Operate on all namespaces (except kube-system)
+- `-d, --dryrun`: Dry-run mode - preview what would be deleted without actually deleting
+- `-i, --interactive`: Interactive mode - prompt for confirmation before deleting each resource
+- `--mafia`: Mafia mode - kill all resources regardless of their state
+- `--half`: Half mode - when used with `--mafia`, randomly delete half of the resources
+
+#### Freeze Deployments
 
 ```bash
 # scale “my-girlfriends” deployment’s spec.replicas to 0 now
@@ -209,30 +286,39 @@ kube-killer freeze deployment my-girlfriends -a 1h
 
 ```
 
-You can find more examples in my [test cases]()
+You can find more examples in the [test cases](https://github.com/p-program/kube-killer/tree/main/cmd/killer)
 
-### CURL usage
+### CURL Usage
 
-You can expose the [kube-killer server](#Web-server-mode) by using nodePort service .
+You can expose the [kube-killer server](#Web-server-mode) by using a NodePort service.
 
 Then the [kube-killer server](#Web-server-mode) would become some kind of backdoor.
 
-Finally，you are free to destroy the whole production Kubernetes cluster  remotely （Hhhhhhhhhhhhhhhhhhhhh).
+Finally, you are free to destroy the whole production Kubernetes cluster remotely (Hhhhhhhhhhhhhhhhhhhhh).
 
-## Serverless mode
+## Serverless Mode
 
-1. [ ] kill node gracefully
-1. [ ] kill satan
-1. [x] kill completed/failed pod automatically
-1. [x] kill unused PV
-1. [x] kill unused PVC
-1. [x] kill service without pod
-1. [x] kill unused configmap
-1. [x] kill unused secret
-1. [x] kill completed jobs
-1. [x] 支持 all-namespaces 标志
-1. [x] 支持 interactive 模式
-1. [x] 支持 dry-run 模式
+The following features are implemented:
+
+1. [x] Kill completed/failed pods automatically
+1. [x] Kill unused PVs
+1. [x] Kill unused PVCs
+1. [x] Kill services without pods
+1. [x] Kill unused ConfigMaps
+1. [x] Kill unused Secrets
+1. [x] Kill completed/failed jobs
+1. [x] Kill StatefulSets
+1. [x] Kill Deployments
+1. [x] Kill nodes gracefully (cordon and drain)
+1. [x] Kill namespaces (including stuck Terminating namespaces)
+1. [x] Kill Custom Resources by group pattern
+1. [x] Kill CustomResourceDefinitions by group pattern
+1. [x] Support `--all-namespaces` flag
+1. [x] Support `--interactive` mode
+1. [x] Support `--dry-run` mode
+1. [x] Support `--mafia` mode (kill all resources)
+1. [x] Support `--half` mode (randomly kill half of resources)
+1. [ ] Kill satan (⚠️ Do not use)
 
 ### kubectl Plugin
 
@@ -242,14 +328,11 @@ kube-killer can be used as a kubectl plugin! Install it and use `kubectl kill` t
 
 ```bash
 # Build and install the plugin
-# 构建插件
 make build-kubectl-plugin
-# 安装插件
 make install-kubectl-plugin
 
 # Or install to a custom location
 make install-kubectl-plugin PREFIX=/usr/local/bin
-
 ```
 
 **Usage:**
@@ -270,13 +353,29 @@ kubectl kill service -n default
 
 For more details, see the [kubectl plugin documentation](docs/KUBECTL_PLUGIN.md).
 
-### Binary CLI usage
+### Binary CLI Usage
 
 ```bash
-kube-killer kill po
+# Delete unused pods
 kube-killer kill pod
 
+# Delete unused pods in all namespaces
+kube-killer kill pod -A
+
+# Delete with dry-run mode
+kube-killer kill pod -d
+
+# Delete with interactive mode
+kube-killer kill pod -i
+
+# Delete all pods (mafia mode)
+kube-killer kill pod --mafia
+
+# Delete half of pods randomly
+kube-killer kill pod --mafia --half
 ```
+
+For more examples, see the [CLI usage](#cli-usage) section above.
 
 ## Bazinga Punk
 
