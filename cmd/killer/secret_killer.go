@@ -88,14 +88,14 @@ func (k *SecretKiller) Kill() error {
 	if err != nil {
 		return err
 	}
-	
+
 	if k.mafia {
 		if k.half {
 			return k.KillHalfSecrets(secrets)
 		}
 		return k.KillAllSecrets(secrets)
 	}
-	
+
 	podKiller, err := NewPodKiller(k.namespace)
 	if err != nil {
 		return err
@@ -104,13 +104,13 @@ func (k *SecretKiller) Kill() error {
 	if err != nil {
 		return err
 	}
-	
+
 	// Get ServiceAccounts that use secrets
 	serviceAccounts, err := k.getAllServiceAccountsInCurrentNamespace()
 	if err != nil {
 		log.Warn().Err(err).Msg("Failed to retrieve ServiceAccounts, continuing without them")
 	}
-	
+
 	unusedSecret, err := k.detectUnusedSecrets(pods, secrets, serviceAccounts)
 	if err != nil {
 		return err
@@ -141,21 +141,21 @@ func (k *SecretKiller) KillHalfSecrets(secrets []*v1.Secret) error {
 		log.Info().Msg("No secrets to kill")
 		return nil
 	}
-	
+
 	// Randomly shuffle the secrets list
 	secretList := make([]*v1.Secret, len(secrets))
 	copy(secretList, secrets)
-	rand.Seed(time.Now().UnixNano())
-	rand.Shuffle(len(secretList), func(i, j int) {
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	r.Shuffle(len(secretList), func(i, j int) {
 		secretList[i], secretList[j] = secretList[j], secretList[i]
 	})
-	
+
 	// Calculate how many secrets to kill (half, rounded down)
 	secretsToKill := len(secretList) / 2
 	if secretsToKill == 0 {
 		secretsToKill = 1 // At least kill one secret if there's only one
 	}
-	
+
 	log.Info().Msgf("Killing %d out of %d secrets", secretsToKill, len(secretList))
 	for i := 0; i < secretsToKill; i++ {
 		secret := secretList[i]
@@ -178,7 +178,7 @@ func (k *SecretKiller) getAllServiceAccountsInCurrentNamespace() ([]v1.ServiceAc
 
 func (k *SecretKiller) detectUnusedSecrets(pods []*v1.Pod, secrets []*v1.Secret, serviceAccounts []v1.ServiceAccount) ([]*v1.Secret, error) {
 	usedSecretNames := map[string]bool{}
-	
+
 	// Check secrets used by Pods
 	for _, pod := range pods {
 		for _, container := range pod.Spec.Containers {
@@ -206,7 +206,7 @@ func (k *SecretKiller) detectUnusedSecrets(pods []*v1.Pod, secrets []*v1.Secret,
 			}
 		}
 	}
-	
+
 	// Check secrets used by ServiceAccounts
 	for _, sa := range serviceAccounts {
 		for _, secretRef := range sa.Secrets {
@@ -216,7 +216,7 @@ func (k *SecretKiller) detectUnusedSecrets(pods []*v1.Pod, secrets []*v1.Secret,
 			usedSecretNames[imagePullSecret.Name] = true
 		}
 	}
-	
+
 	unused := []*v1.Secret{}
 	for _, secret := range secrets {
 		if !usedSecretNames[secret.Name] {

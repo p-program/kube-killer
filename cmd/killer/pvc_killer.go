@@ -107,8 +107,8 @@ func (k *PVCKiller) KillHalfPVCs() error {
 
 	// Randomly shuffle the PVCs list
 	pvcList := list.Items
-	rand.Seed(time.Now().UnixNano())
-	rand.Shuffle(len(pvcList), func(i, j int) {
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	r.Shuffle(len(pvcList), func(i, j int) {
 		pvcList[i], pvcList[j] = pvcList[j], pvcList[i]
 	})
 

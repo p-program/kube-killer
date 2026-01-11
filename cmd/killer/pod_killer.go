@@ -146,8 +146,8 @@ func (k *PodKiller) KillHalfPods() error {
 
 	// Randomly shuffle the pods list
 	podList := pods.Items
-	rand.Seed(time.Now().UnixNano())
-	rand.Shuffle(len(podList), func(i, j int) {
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	r.Shuffle(len(podList), func(i, j int) {
 		podList[i], podList[j] = podList[j], podList[i]
 	})
 

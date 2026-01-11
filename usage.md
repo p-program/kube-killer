@@ -37,6 +37,8 @@ kube-killer [command] [resource-type] [flags]
 - `kill` - 删除 Kubernetes 资源
 - `freeze` - 将资源缩放到 0（冻结）
 - `version` - 显示版本信息
+- `scan` - 扫描 Kubernetes 集群中的反模式和问题
+- `server` - 作为 Kubernetes Operator 运行
 
 ## 支持的资源类型
 
@@ -51,9 +53,9 @@ kube-killer [command] [resource-type] [flags]
 | PersistentVolume | `pv` | 删除未绑定或未使用的 PV |
 | PersistentVolumeClaim | `pvc` | 删除未绑定或未被 Pod 使用的 PVC |
 | Job | `job`, `jobs` | 删除已完成或失败的 Job |
-| Deployment | `d`, `deploy`, `deployment` | 删除 Deployment（功能待完善） |
+| Deployment | `d`, `deploy`, `deployment` | 删除 Deployment |
 | Node | `n`, `no`, `node` | 优雅地删除 Node（需要指定节点名） |
-| Namespace | `ns`, `namespace` | 删除 Namespace（功能待完善） |
+| Namespace | `ns`, `namespace` | 删除 Namespace |
 | CustomResource | `cr`, `customresource` | 根据 group 模式删除 Custom Resource（需要指定 group 模式） |
 | CustomResourceDefinition | `crd`, `customresourcedefinition` | 根据 group 模式删除 CustomResourceDefinition（需要指定 group 模式） |
 
@@ -104,21 +106,28 @@ kube-killer kill <resource-type> [flags]
    - 删除已完成（Completed）或失败（Failed）的 Job
    - 通过 Job 状态和条件判断
 
-8. **Node** (`node`, `no`, `n`)
+8. **Deployment** (`deployment`, `deploy`, `d`)
+   - 删除 Deployment 及其关联资源
+
+9. **Node** (`node`, `no`, `n`)
    - 需要指定节点名称作为第二个参数
-   - 先执行 `kubectl cordon`，然后可以执行 `kubectl drain`（功能待完善）
+   - 先执行 `kubectl cordon`，然后可以执行 `kubectl drain`
 
-9. **CustomResource** (`cr`, `customresource`)
-   - 根据 group 模式删除 Custom Resource
-   - 需要指定 group 模式作为第二个参数（例如：`example.com` 或 `*.example.com`）
-   - 支持通配符匹配：
-     - `*.example.com` - 匹配所有以 `.example.com` 结尾的 group
-     - `example.com` - 精确匹配
-     - `example.*` - 匹配所有以 `example.` 开头的 group
-   - 自动识别 cluster-scoped 和 namespace-scoped 的 CR
-   - 自动发现匹配的 CRD 并删除对应的所有 CR
+10. **Namespace** (`namespace`, `ns`)
+    - 删除命名空间及其所有资源
+    - 支持强制删除（使用 `--mafia` 标志）
 
-10. **CustomResourceDefinition** (`crd`, `customresourcedefinition`)
+11. **CustomResource** (`cr`, `customresource`)
+    - 根据 group 模式删除 Custom Resource
+    - 需要指定 group 模式作为第二个参数（例如：`example.com` 或 `*.example.com`）
+    - 支持通配符匹配：
+      - `*.example.com` - 匹配所有以 `.example.com` 结尾的 group
+      - `example.com` - 精确匹配
+      - `example.*` - 匹配所有以 `example.` 开头的 group
+    - 自动识别 cluster-scoped 和 namespace-scoped 的 CR
+    - 自动发现匹配的 CRD 并删除对应的所有 CR
+
+12. **CustomResourceDefinition** (`crd`, `customresourcedefinition`)
     - 根据 group 模式删除 CustomResourceDefinition
     - 需要指定 group 模式作为第二个参数（例如：`example.com` 或 `*.example.com`）
     - 支持通配符匹配：
@@ -146,6 +155,31 @@ kube-killer freeze deployment my-app -n default
 kube-killer freeze statefulset my-statefulset -n default
 ```
 
+### scan 命令
+
+扫描 Kubernetes 集群中的反模式和问题，基于云原生开发最佳实践。
+
+**语法：**
+```bash
+kube-killer scan [flags]
+```
+
+**扫描内容：**
+- CRD schema 问题
+- Conversion webhook 问题
+- Controller 协调循环问题
+- Webhook 配置问题
+- Owner reference 问题
+
+### server 命令
+
+作为 Kubernetes Operator 运行，监听 KubeKiller CRD 并管理资源清理。
+
+**语法：**
+```bash
+kube-killer server run
+```
+
 ## 标志选项
 
 ### kill 命令标志
@@ -156,20 +190,30 @@ kube-killer freeze statefulset my-statefulset -n default
 | `--all-namespaces` | `-A` | 在所有命名空间执行（排除 kube-system） | `false` |
 | `--dryrun` | `-d` | 仅显示将要删除的资源，不实际删除 | `false` |
 | `--interactive` | `-i` | 交互式模式，删除前询问确认 | `false` |
+| `--mafia` | - | 黑手党模式：删除所有资源（忽略使用情况检查） | `false` |
+| `--half` | - | 与 `--mafia` 一起使用，随机删除一半的资源 | `false` |
 
 ### freeze 命令标志
 
 | 标志 | 简写 | 说明 | 默认值 |
 |------|------|------|--------|
 | `--namespace` | `-n` | 指定命名空间 | `default` |
-| `--dryrun` | `-d` | 仅显示将要执行的操作，不实际执行 | `false` |
+
+**注意：** freeze 命令目前不支持 `--dryrun` 标志，但会在实际执行前使用 Kubernetes 的 DryRun 模式进行验证。
+
+### scan 命令标志
+
+| 标志 | 简写 | 说明 | 默认值 |
+|------|------|------|--------|
+| `--namespace` | `-n` | 扫描指定命名空间（默认：所有命名空间） | `""` |
+| `--all-namespaces` | `-A` | 扫描所有命名空间 | `false` |
+| `--output` | `-o` | 输出格式：`table`、`json`、`yaml` | `table` |
 
 ### 全局标志
 
 | 标志 | 说明 | 默认值 |
 |------|------|--------|
-| `--config` | 配置文件路径 | `$HOME/.config.yaml` |
-| `--viper` | 使用 Viper 进行配置 | `true` |
+| `--config` | 配置文件路径 | `""` |
 
 ## 使用示例
 
@@ -209,6 +253,19 @@ kube-killer kill configmap --interactive
 kube-killer kill secret -n default --dryrun --interactive
 ```
 
+### 使用黑手党模式（Mafia Mode）
+
+```bash
+# ⚠️ 危险：删除所有 Pod（忽略使用情况检查）
+kube-killer kill pod --mafia
+
+# ⚠️ 危险：随机删除一半的 ConfigMap
+kube-killer kill configmap --mafia --half
+
+# 结合 dry-run 查看将要删除的资源
+kube-killer kill pod --mafia --dryrun
+```
+
 ### 跨命名空间操作
 
 ```bash
@@ -230,6 +287,12 @@ kube-killer kill pvc -n default
 
 # 优雅删除 Node（需要指定节点名）
 kube-killer kill node worker-node-1
+
+# 删除 Namespace（会删除命名空间及其所有资源）
+kube-killer kill namespace my-namespace
+
+# 强制删除 Namespace（使用 mafia 模式）
+kube-killer kill namespace my-namespace --mafia
 ```
 
 ### 删除 Custom Resource
@@ -282,8 +345,25 @@ kube-killer freeze deployment my-app -n production
 # 冻结 StatefulSet
 kube-killer freeze statefulset my-db -n production
 
-# Dry-run 模式查看将要执行的操作
-kube-killer freeze deployment my-app -n production --dryrun
+# 使用别名
+kube-killer freeze d my-app -n production
+kube-killer freeze ss my-db -n production
+```
+
+### Scan 命令示例
+
+```bash
+# 扫描所有命名空间
+kube-killer scan
+
+# 扫描指定命名空间
+kube-killer scan -n production
+
+# 扫描所有命名空间并输出 JSON 格式
+kube-killer scan --all-namespaces -o json
+
+# 输出 YAML 格式
+kube-killer scan -o yaml
 ```
 
 ### 组合使用
@@ -295,6 +375,10 @@ kube-killer kill secret --all-namespaces
 
 # 交互式删除所有命名空间中的 completed Job
 kube-killer kill job -A -i
+
+# 先扫描问题，再清理资源
+kube-killer scan
+kube-killer kill pod --dryrun
 ```
 
 ## 注意事项
@@ -314,16 +398,21 @@ kube-killer kill job -A -i
    - 启用后，每个资源删除前都会提示确认
    - 输入 `y` 或 `yes` 确认删除，其他输入则跳过
 
-4. **资源删除规则**
+4. **黑手党模式 (`--mafia`)**
+   - ⚠️ **极度危险**：会删除所有资源，忽略使用情况检查
+   - 建议始终结合 `--dryrun` 使用
+   - 与 `--half` 一起使用时，会随机删除一半的资源
+
+5. **资源删除规则**
    - Pod: 只删除非 Running 状态的 Pod
-   - ConfigMap/Secret: 只删除未被使用的资源
+   - ConfigMap/Secret: 只删除未被使用的资源（除非使用 `--mafia`）
    - Service: 只删除没有匹配 Pod 的 Service
    - PV/PVC: 只删除未绑定或未使用的资源
    - Job: 只删除已完成或失败的 Job
    - CustomResource: 根据 group 模式匹配并删除所有对应的 CR（包括 cluster-scoped 和 namespace-scoped）
    - CustomResourceDefinition: 根据 group 模式匹配并删除所有对应的 CRD（⚠️ 删除 CRD 会同时删除该 CRD 定义的所有 CR 实例）
 
-5. **特殊命令**
+6. **特殊命令**
    - `kube-killer kill me` - ⚠️ **危险命令，请勿使用**
    - `kube-killer kill satan` - ⚠️ **危险命令，请勿使用**
 
@@ -378,13 +467,26 @@ kube-killer kill job -A -i
    kube-killer kill crd *.example.com --dryrun
    ```
 
+6. **使用 Scan 命令进行健康检查：**
+   ```bash
+   # 定期扫描集群中的反模式和问题
+   kube-killer scan --all-namespaces
+   
+   # 将结果导出为 JSON 进行分析
+   kube-killer scan -o json > scan-results.json
+   ```
+
 ### 限制和已知问题
 
-1. **Deployment Killer** - 功能尚未完全实现
-2. **Namespace Killer** - Kill() 方法尚未实现
-3. **Node Killer** - Drain 功能尚未完全实现
-4. **Custom Metrics** - 自定义指标条件支持尚未实现
-5. **Event Output** - 事件输出功能尚未实现
+1. **Freeze 命令**
+   - 目前不支持 `--dryrun` 标志，但会在实际执行前使用 Kubernetes 的 DryRun 模式进行验证
+   - 仅支持 Deployment 和 StatefulSet
+
+2. **Node Killer**
+   - Drain 功能可能需要额外配置
+
+3. **Server 命令**
+   - 需要部署相应的 CRD 和 RBAC 配置
 
 ### 故障排查
 
@@ -400,6 +502,11 @@ kube-killer kill job -A -i
    - 确保能够访问 Kubernetes API Server
    - 检查防火墙和网络策略
 
+4. **资源删除失败**
+   - 检查资源是否有 finalizers
+   - 检查是否有其他资源依赖
+   - 使用 `--interactive` 模式查看详细错误信息
+
 ## 参考
 
 - 项目地址: https://github.com/p-program/kube-killer
@@ -409,4 +516,3 @@ kube-killer kill job -A -i
 ## 许可证
 
 Mulan PSL v2
-

@@ -90,8 +90,8 @@ func (k *JobKiller) KillHalfJobs() error {
 
 	// Randomly shuffle the jobs list
 	jobList := jobs.Items
-	rand.Seed(time.Now().UnixNano())
-	rand.Shuffle(len(jobList), func(i, j int) {
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	r.Shuffle(len(jobList), func(i, j int) {
 		jobList[i], jobList[j] = jobList[j], jobList[i]
 	})
 

@@ -99,8 +99,8 @@ func (k *ServiceKiller) KillHalfServices(services *v1.ServiceList) error {
 	
 	// Randomly shuffle the services list
 	serviceList := services.Items
-	rand.Seed(time.Now().UnixNano())
-	rand.Shuffle(len(serviceList), func(i, j int) {
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	r.Shuffle(len(serviceList), func(i, j int) {
 		serviceList[i], serviceList[j] = serviceList[j], serviceList[i]
 	})
 	

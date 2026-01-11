@@ -2,14 +2,14 @@ package database
 
 import (
 	"fmt"
-	"io/ioutil"
+	"os"
 	"strings"
 
 	"github.com/rs/zerolog/log"
 
+	"github.com/p-program/kube-killer/config"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-	"github.com/p-program/kube-killer/config"
 )
 
 const (
@@ -72,7 +72,7 @@ func (p *MysqlPreparation) CleanUp() {
 // CreateTable params are optional
 func (p *MysqlPreparation) CreateTable(db *gorm.DB) error {
 	// load template
-	content, err := ioutil.ReadFile(MYSQL_TABLE_TERMINATOR_PATH)
+	content, err := os.ReadFile(MYSQL_TABLE_TERMINATOR_PATH)
 	if err != nil {
 		return err
 	}
@@ -87,7 +87,7 @@ func (p *MysqlPreparation) CreateTable(db *gorm.DB) error {
 
 // CreateDb params are optional
 func (p *MysqlPreparation) CreateDb(db *gorm.DB, dbName string) error {
-	content, err := ioutil.ReadFile(MYSQL_DB_Path)
+	content, err := os.ReadFile(MYSQL_DB_Path)
 	if err != nil {
 		return err
 	}

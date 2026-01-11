@@ -90,21 +90,21 @@ func (k *ConfigmapKiller) KillHalfConfigMaps() error {
 		log.Info().Msg("No configmaps to kill")
 		return nil
 	}
-	
+
 	// Randomly shuffle the configmaps list
 	cmList := make([]*v1.ConfigMap, len(configMaps))
 	copy(cmList, configMaps)
-	rand.Seed(time.Now().UnixNano())
-	rand.Shuffle(len(cmList), func(i, j int) {
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	r.Shuffle(len(cmList), func(i, j int) {
 		cmList[i], cmList[j] = cmList[j], cmList[i]
 	})
-	
+
 	// Calculate how many configmaps to kill (half, rounded down)
 	cmsToKill := len(cmList) / 2
 	if cmsToKill == 0 {
 		cmsToKill = 1 // At least kill one configmap if there's only one
 	}
-	
+
 	log.Info().Msgf("Killing %d out of %d configmaps", cmsToKill, len(cmList))
 	for i := 0; i < cmsToKill; i++ {
 		cm := cmList[i]
@@ -172,7 +172,7 @@ func (k *ConfigmapKiller) getAllConfigMapsInCurrentNamespace() ([]*v1.ConfigMap,
 
 func (k *ConfigmapKiller) detectUnusedConfigMaps(pods []*v1.Pod, configMaps []*v1.ConfigMap) ([]*v1.ConfigMap, error) {
 	usedConfigMapNames := map[string]bool{}
-	
+
 	// Check configmaps used by Pods
 	for _, pod := range pods {
 		for _, container := range pod.Spec.Containers {
@@ -200,7 +200,7 @@ func (k *ConfigmapKiller) detectUnusedConfigMaps(pods []*v1.Pod, configMaps []*v
 			}
 		}
 	}
-	
+
 	unused := []*v1.ConfigMap{}
 	for _, cm := range configMaps {
 		if !usedConfigMapNames[cm.Name] {

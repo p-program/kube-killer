@@ -107,20 +107,20 @@ func (k *PVKiller) KillHalfPVs() error {
 		log.Info().Msg("No PVs to kill")
 		return nil
 	}
-	
+
 	// Randomly shuffle the PVs list
 	pvList := volumeList.Items
-	rand.Seed(time.Now().UnixNano())
-	rand.Shuffle(len(pvList), func(i, j int) {
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	r.Shuffle(len(pvList), func(i, j int) {
 		pvList[i], pvList[j] = pvList[j], pvList[i]
 	})
-	
+
 	// Calculate how many PVs to kill (half, rounded down)
 	pvsToKill := len(pvList) / 2
 	if pvsToKill == 0 {
 		pvsToKill = 1 // At least kill one PV if there's only one
 	}
-	
+
 	log.Info().Msgf("Killing %d out of %d PVs", pvsToKill, len(pvList))
 	for i := 0; i < pvsToKill; i++ {
 		volume := pvList[i]

@@ -5,8 +5,8 @@ There are just a few small guidelines you need to follow.
 
 ## Code guidelines 代码规范
 
-All guidelines are bullshit.
-任意所至。
+Do not use deprecated APIs for the Go version specified in go.mod.
+不能使用 go.mod 中对应go版本过时的API。
 
 ## Code review 代码审阅
 
