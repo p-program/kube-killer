@@ -143,14 +143,14 @@ func (k *PodKiller) KillHalfPods() error {
 		log.Info().Msg("No pods to kill")
 		return nil
 	}
-	
+
 	// Randomly shuffle the pods list
 	podList := pods.Items
 	rand.Seed(time.Now().UnixNano())
 	rand.Shuffle(len(podList), func(i, j int) {
 		podList[i], podList[j] = podList[j], podList[i]
 	})
-	
+
 	// Calculate how many pods to kill (half, rounded down)
 	podsToKill := len(podList) / 2
 	if podsToKill == 0 {

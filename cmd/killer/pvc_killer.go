@@ -104,20 +104,20 @@ func (k *PVCKiller) KillHalfPVCs() error {
 		log.Info().Msg("No PVCs to kill")
 		return nil
 	}
-	
+
 	// Randomly shuffle the PVCs list
 	pvcList := list.Items
 	rand.Seed(time.Now().UnixNano())
 	rand.Shuffle(len(pvcList), func(i, j int) {
 		pvcList[i], pvcList[j] = pvcList[j], pvcList[i]
 	})
-	
+
 	// Calculate how many PVCs to kill (half, rounded down)
 	pvcsToKill := len(pvcList) / 2
 	if pvcsToKill == 0 {
 		pvcsToKill = 1 // At least kill one PVC if there's only one
 	}
-	
+
 	log.Info().Msgf("Killing %d out of %d PVCs", pvcsToKill, len(pvcList))
 	for i := 0; i < pvcsToKill; i++ {
 		pvc := pvcList[i]
@@ -136,7 +136,7 @@ func (k *PVCKiller) KillUnusedPVCs() error {
 	if err != nil {
 		return err
 	}
-	
+
 	// Get all Pods to check which PVCs are in use
 	podKiller, err := NewPodKiller(k.namespace)
 	if err != nil {
@@ -146,7 +146,7 @@ func (k *PVCKiller) KillUnusedPVCs() error {
 	if err != nil {
 		return err
 	}
-	
+
 	// Build map of used PVCs
 	usedPVCs := make(map[string]bool)
 	for _, pod := range pods {
@@ -156,7 +156,7 @@ func (k *PVCKiller) KillUnusedPVCs() error {
 			}
 		}
 	}
-	
+
 	// Delete unused PVCs
 	for _, pvc := range pvcList.Items {
 		// Skip bound PVCs that are in use

@@ -5,13 +5,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func init() {
-
-}
-
 var (
 	namespace string
-	dryRun    bool
 )
 
 func NewFreezeCommand() *cobra.Command {
@@ -33,6 +28,5 @@ func NewFreezeCommand() *cobra.Command {
 			icebox.Freeze(args[0], args[1])
 		}}
 	c.PersistentFlags().StringVarP(&namespace, "namespace", "n", "default", "working namespace")
-	c.PersistentFlags().BoolVarP(&dryRun, "dryrun", "d", false, "dryRun")
 	return c
 }

@@ -1,9 +1,6 @@
 package cmd
 
 import (
-	"fmt"
-	"os"
-
 	"github.com/p-program/kube-killer/cmd/killer"
 	"github.com/p-program/kube-killer/cmd/server"
 	"github.com/spf13/cobra"
@@ -12,8 +9,7 @@ import (
 
 var (
 	// Used for flags.
-	cfgFile     string
-	userLicense string
+	cfgFile string
 
 	rootCmd = &cobra.Command{
 		Use:   "kube-killer",
@@ -30,12 +26,6 @@ func Execute() error {
 func init() {
 	cobra.OnInitialize(initConfig)
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.config.yaml)")
-	rootCmd.PersistentFlags().StringVarP(&userLicense, "license", "l", "", "name of license for the project")
-	rootCmd.PersistentFlags().Bool("viper", true, "use Viper for configuration")
-	viper.BindPFlag("author", rootCmd.PersistentFlags().Lookup("author"))
-	viper.BindPFlag("useViper", rootCmd.PersistentFlags().Lookup("viper"))
-	viper.SetDefault("author", "https://github.com/p-program")
-	viper.SetDefault("license", "Mulan PSL v2")
 	bindCommand()
 
 }
@@ -49,11 +39,6 @@ func bindCommand() {
 	rootCmd.AddCommand(kill)
 	kill.AddCommand()
 
-}
-
-func er(msg interface{}) {
-	fmt.Println("Error:", msg)
-	os.Exit(1)
 }
 
 func initConfig() {

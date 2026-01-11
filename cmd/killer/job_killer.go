@@ -87,20 +87,20 @@ func (k *JobKiller) KillHalfJobs() error {
 		log.Info().Msg("No jobs to kill")
 		return nil
 	}
-	
+
 	// Randomly shuffle the jobs list
 	jobList := jobs.Items
 	rand.Seed(time.Now().UnixNano())
 	rand.Shuffle(len(jobList), func(i, j int) {
 		jobList[i], jobList[j] = jobList[j], jobList[i]
 	})
-	
+
 	// Calculate how many jobs to kill (half, rounded down)
 	jobsToKill := len(jobList) / 2
 	if jobsToKill == 0 {
 		jobsToKill = 1 // At least kill one job if there's only one
 	}
-	
+
 	log.Info().Msgf("Killing %d out of %d jobs", jobsToKill, len(jobList))
 	for i := 0; i < jobsToKill; i++ {
 		job := jobList[i]
@@ -136,7 +136,7 @@ func (k *JobKiller) DeserveDead(resource interface{}) bool {
 		return true
 	}
 	job := resource.(batchv1.Job)
-	
+
 	// Check if job is completed based on conditions
 	for _, condition := range job.Status.Conditions {
 		if condition.Type == batchv1.JobComplete && condition.Status == "True" {
@@ -146,7 +146,7 @@ func (k *JobKiller) DeserveDead(resource interface{}) bool {
 			return true
 		}
 	}
-	
+
 	// If no conditions are set, check completion based on spec and status
 	// A job is considered complete if:
 	// 1. It has completions specified and succeeded count matches
@@ -161,12 +161,11 @@ func (k *JobKiller) DeserveDead(resource interface{}) bool {
 			return true
 		}
 	}
-	
+
 	// Check if job has failed (backoff limit exceeded)
 	if job.Spec.BackoffLimit != nil && job.Status.Failed > *job.Spec.BackoffLimit {
 		return true
 	}
-	
+
 	return false
 }
-
