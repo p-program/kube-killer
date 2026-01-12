@@ -202,6 +202,7 @@ kube-killer supports killing the following Kubernetes resources:
 - **Deployment** (`deployment`, `deploy`, `d`) - Deletes deployments
 - **CustomResource** (`cr`, `customresource`) - Deletes Custom Resources by group pattern (e.g., `*.example.com`)
 - **CustomResourceDefinition** (`crd`, `customresourcedefinition`) - Deletes CRDs by group pattern
+- **Zeusro** (`zeusro`) - Unpredictable mode: 50% chance nothing happens (Valar Dohaeris), 50% chance randomly deletes 50% of pods (Thanos mode)
 
 #### Kill Resources
 
@@ -265,6 +266,12 @@ kube-killer kill cr "*.example.com" -A
 
 # Delete CustomResourceDefinitions by group pattern
 kube-killer kill crd "*.example.com"
+
+# Zeusro mode - 50% chance nothing happens, 50% chance deletes 50% of pods randomly
+kube-killer kill zeusro -n default
+
+# Zeusro mode with dry-run
+kube-killer kill zeusro -d
 ```
 
 #### Command Flags
@@ -318,6 +325,7 @@ The following features are implemented:
 1. [x] Support `--dry-run` mode
 1. [x] Support `--mafia` mode (kill all resources)
 1. [x] Support `--half` mode (randomly kill half of resources)
+1. [x] Zeusro mode (unpredictable: 50% chance nothing happens, 50% chance deletes 50% pods)
 1. [ ] Kill satan (⚠️ Do not use)
 
 ### kubectl Plugin
@@ -388,6 +396,16 @@ kube-killer kill me
 **!!!WARNING!!!**:PLEASE DO NOT USE.
 
 It‘s an unpredictable command🤣.
+
+## Zeusro Mode
+
+```bash
+kube-killer kill zeusro
+```
+
+**!!!WARNING!!!**: Unpredictable command - 50% chance nothing happens (Valar Dohaeris), 50% chance randomly deletes 50% of pods (Thanos mode).
+
+The coin decides your fate! 🎲
 
 ## One more thing
 
