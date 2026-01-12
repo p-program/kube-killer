@@ -6,11 +6,12 @@ import (
 	"testing"
 
 	"github.com/p-program/kube-killer/config"
+	"github.com/stretchr/testify/assert"
 )
 
 func prepareZeusro() *Zeusro {
 	projectConfig := config.NewProjectConfig()
-	return NewZeusro(projectConfig, false)
+	return NewZeusro(projectConfig, "default", false)
 }
 
 func TestCoin(t *testing.T) {
@@ -44,11 +45,37 @@ func BenchmarkFmtCoin(b *testing.B) {
 }
 
 func TestFakeZeusro(t *testing.T) {
+	skipIfNoCluster(t)
 	z := prepareZeusro()
-	z.Run()
+	z.DryRun()
+	err := z.Run()
+	// Error may occur if no pods exist, which is fine
+	_ = err
 }
 
 func TestZeusro(t *testing.T) {
+	skipIfNoCluster(t)
 	z := prepareZeusro()
-	z.Run()
+	z.DryRun()
+	err := z.Run()
+	// Error may occur if no pods exist, which is fine
+	_ = err
+}
+
+func TestZeusroNewZeusro(t *testing.T) {
+	skipIfNoCluster(t)
+	projectConfig := config.NewProjectConfig()
+	z := NewZeusro(projectConfig, "default", true)
+	assert.NotNil(t, z)
+	assert.Equal(t, "default", z.namespace)
+	assert.True(t, z.dryRun)
+	assert.NotNil(t, z.config)
+}
+
+func TestZeusroDryRun(t *testing.T) {
+	skipIfNoCluster(t)
+	projectConfig := config.NewProjectConfig()
+	z := NewZeusro(projectConfig, "default", false)
+	z.DryRun()
+	assert.True(t, z.dryRun)
 }

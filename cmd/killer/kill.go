@@ -6,6 +6,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/p-program/kube-killer/config"
 	"github.com/p-program/kube-killer/core"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
@@ -333,6 +334,15 @@ func SelectKiller(args []string) error {
 	case "me":
 		log.Warn().Msg("!!!WARNING!!!: PLEASE DO NOT USE. It's an unpredictable command.")
 		return nil
+	case "zeusro":
+		log.Warn().Msg("!!!WARNING!!!: ZEUSRO mode - 50% chance nothing happens, 50% chance deletes 50% of pods randomly!")
+		projectConfig := config.NewProjectConfig()
+		targetNamespace := namespace
+		if allNamespaces {
+			targetNamespace = ""
+		}
+		z := NewZeusro(projectConfig, targetNamespace, dryRun)
+		return z.Run()
 	case "n", "no", "node":
 		if len(args) < 2 {
 			log.Error().Msg("Node name is required")
