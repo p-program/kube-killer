@@ -1,5 +1,91 @@
 # change logs
 
+## 优化 NodeKiller 实现：使用 Evict API 并完善节点删除流程
+
+2026-01-12
+
+参考 `kubectl drain` 和 `kubectl delete node` 的标准流程，对 `cmd/killer/node_killer.go` 进行了全面优化，使用 Evict API 替代 Delete API，并实现了完整的节点删除流程。
+
+### 主要改进
+
+1. **使用 Evict API 替代 Delete API**
+   - 使用 `PolicyV1().Evictions().Evict()` 替代 `Pods().Delete()`
+   - 符合 `kubectl drain` 的标准行为
+   - 自动尊重 PodDisruptionBudgets（PDB）
+   - 支持 pod 的优雅终止（graceful termination）
+
+2. **实现完整的三步节点删除流程**
+   - **Step 1: `cordonNode()`** - 标记节点为不可调度（`kubectl cordon`）
+     - 设置 `node.Spec.Unschedulable = true`
+     - 防止新的 pod 调度到该节点
+     - 检查节点是否已处于 cordon 状态，避免重复操作
+   - **Step 2: `drainNodePods()`** - 驱逐除 DaemonSet 外的所有 pod（`kubectl drain --ignore-daemonsets`）
+     - 使用 Evict API 驱逐所有非 DaemonSet pod
+     - 自动跳过 DaemonSet pod
+     - 跳过已处于终止状态的 pod
+     - 等待所有 pod 优雅终止（最多 5 分钟）
+   - **Step 3: `deleteNode()`** - 删除节点（`kubectl delete node`）
+     - 删除节点资源
+     - 支持 dry-run 模式
+
+3. **添加等待和超时机制**
+   - `waitForPodsToTerminate()` 方法等待所有 pod 终止
+   - 超时时间：5 分钟
+   - 检查间隔：5 秒
+   - 智能检测 pod 状态（已删除、已终止、运行中等）
+
+4. **代码结构优化**
+   - 将功能拆分为独立的方法：`cordonNode()`、`drainNodePods()`、`evictPod()`、`waitForPodsToTerminate()`、`deleteNode()`
+   - 改进错误处理和日志记录
+   - 使用 `fmt.Errorf` 包装错误，提供更详细的上下文信息
+   - 单个 pod 驱逐失败不会中断整个流程
+
+5. **增强的错误处理**
+   - 每个步骤都有独立的错误处理
+   - 超时后给出警告而非直接失败
+   - 完善的日志输出，便于调试和追踪
+
+### 技术实现
+
+- 使用 `k8s.io/api/policy/v1` 包的 `Eviction` API
+- 使用 `clientset.PolicyV1().Evictions(namespace).Evict()` 方法
+- 通过 `fieldSelector` 查询节点上的所有 pod
+- 检查 pod 的 `OwnerReferences` 判断是否为 DaemonSet pod
+- 使用 `DeletionTimestamp` 和 `Status.Phase` 判断 pod 状态
+
+### 使用示例
+
+```bash
+# 正常删除节点（cordon -> drain -> delete）
+kube-killer kill node my-node-name
+
+# 强制删除节点（跳过 cordon 和 drain，直接 delete）
+kube-killer kill node my-node-name --mafia
+
+# 预览模式
+kube-killer kill node my-node-name --dryrun
+```
+
+### 流程对比
+
+**改进前：**
+- 使用 `Delete()` API 直接删除 pod（不够优雅）
+- 缺少等待 pod 终止的逻辑
+- 缺少删除节点的实现（只有注释）
+
+**改进后：**
+- 使用 `Evict()` API 优雅驱逐 pod
+- 完整的等待和超时机制
+- 实现完整的三步流程：cordon → drain → delete
+- 与 `kubectl drain` 行为完全一致
+
+### 参考
+
+- [kubectl drain](https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands#drain)
+- [kubectl cordon](https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands#cordon)
+- [Kubernetes API Eviction](https://kubernetes.io/docs/concepts/scheduling-eviction/api-eviction/)
+- [PodDisruptionBudgets](https://kubernetes.io/docs/tasks/run-application/configure-pdb/)
+
 ## Operator 模式增强：支持特定命名空间删除和特定时间点执行
 
 2026-01-12
