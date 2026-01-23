@@ -1,0 +1,19 @@
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: myapp-scaledobject
+  namespace: default
+spec:
+  scaleTargetRef:
+    name: myapp           # 要缩容的 Deployment/StatefulSet
+  minReplicaCount: 0      # 支持缩到 0
+  maxReplicaCount: 10
+  triggers:
+  - type: prometheus
+    metadata:
+      serverAddress: http://prometheus-server.monitoring.svc:9090
+      metricName: http_requests_per_second
+      query: |
+        sum(rate(http_requests_total{namespace="default",pod=~"^myapp-.*"}[2m]))
+      threshold: "100"          # 总请求速率 >100 就扩容
+      activationThreshold: "5"  # <5 才缩容（防抖动）
