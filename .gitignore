@@ -20,6 +20,9 @@
 # mac
 .DS_Store
 
+# release build output
+/dist/
+
 # project
 config.yaml
 operator/cmd/manager/kube-killer
